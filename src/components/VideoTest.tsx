@@ -1,3 +1,5 @@
+'use client'
+
 import ReactPlayer from 'react-player'
 
 export const VideoTest = () => {
@@ -5,15 +7,15 @@ export const VideoTest = () => {
     <div style={{ width: '100%', height: '400px', background: '#000' }}>
       <h1 style={{ color: 'white', padding: '20px' }}>Video Test</h1>
 
-      {/* Test 1: Simplest possible ReactPlayer */}
+      {/* Test: ReactPlayer with v3 API */}
       <div style={{ width: '640px', height: '360px', margin: '20px' }}>
         <ReactPlayer
-          url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+          src='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
           controls={true}
           width='100%'
           height='100%'
-          onReady={() => console.log('✅ Video Ready')}
-          onError={(e) => console.error('❌ Video Error:', e)}
+          onCanPlay={() => console.log('✅ Video Ready')}
+          onError={() => console.error('❌ Video Error')}
         />
       </div>
     </div>

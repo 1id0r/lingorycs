@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import ReactPlayer from 'react-player'
 import { useAudioSync } from '../hooks/useAudioSync'
 import type { Song } from '../types'
-import { Volume2 } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
 import clsx from 'clsx'
 
 // Define the ReactPlayer instance type for ref access
@@ -18,9 +18,10 @@ interface ReactPlayerInstance {
 
 interface PlayerProps {
   song: Song
+  onStartPractice?: () => void
 }
 
-export const Player: React.FC<PlayerProps> = ({ song }) => {
+export const Player: React.FC<PlayerProps> = ({ song, onStartPractice }) => {
   const [playing] = useState(true) // Auto-start
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -51,10 +52,30 @@ export const Player: React.FC<PlayerProps> = ({ song }) => {
   }, [activeLineIndex])
 
   return (
-    <div className='flex flex-col h-screen bg-neutral-900 text-white overflow-hidden'>
-      {/* Video Player (Hidden or integrated) */}
+    <div className='flex flex-col h-[calc(100vh-4rem)] bg-neutral-900 text-white overflow-hidden'>
+      {/* Song Info Bar - Top */}
+      <div className='bg-black/80 backdrop-blur-md border-b border-white/10 p-4 shrink-0 flex items-center justify-between z-20'>
+        <div className='flex flex-col'>
+          <span className='font-bold text-lg'>{song.title}</span>
+          <span className='text-sm text-gray-400'>{song.artist}</span>
+        </div>
+
+        <div className='flex items-center gap-4'>
+          {onStartPractice && (
+            <button
+              onClick={onStartPractice}
+              className='flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold text-sm hover:from-purple-500 hover:to-teal-400 transition-all active:scale-95'
+            >
+              <GraduationCap size={18} />
+              Practice
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Video Player */}
       <div
-        className='w-auto md:w-full max-w-5xl mx-4 md:mx-auto mt-4 md:mt-8 rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black aspect-video max-h-[50vh] shrink-0 relative z-10'
+        className='w-auto md:w-full max-w-5xl mx-4 md:mx-auto mt-4 md:mt-8 rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black aspect-video max-h-[45vh] shrink-0 relative z-10'
         style={{ pointerEvents: 'auto' }}
       >
         <ReactPlayer
@@ -106,22 +127,6 @@ export const Player: React.FC<PlayerProps> = ({ song }) => {
         })}
         {/* Spacer for bottom scrolling */}
         <div className='h-[40vh]'></div>
-      </div>
-
-      {/* Persistent Footer Controls (Song Info) */}
-      <div className='bg-black/80 backdrop-blur-md border-t border-white/10 p-4 shrink-0 flex items-center justify-between z-20'>
-        <div className='flex flex-col'>
-          <span className='font-bold text-lg'>{song.title}</span>
-          <span className='text-sm text-gray-400'>{song.artist}</span>
-        </div>
-
-        <div className='flex items-center gap-4'>
-          <span className='text-xs font-mono text-gray-400'>
-            {new Date(currentTime * 1000).toISOString().substr(14, 5)} /{' '}
-            {new Date(duration * 1000).toISOString().substr(14, 5)}
-          </span>
-          <Volume2 size={20} className='text-gray-400' />
-        </div>
       </div>
     </div>
   )

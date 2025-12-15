@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Player } from '@/components/Player'
+import { PracticeMode } from '@/components/PracticeMode'
 import { searchAndBuildSong, getSearchSuggestions, processTrackToSong } from '@/services/songService'
 import type { Song } from '@/types'
 import type { LrcLibTrack } from '@/services/lyrics'
@@ -14,6 +15,7 @@ export default function Home() {
   const [currentSong, setCurrentSong] = useState<Song | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [practiceMode, setPracticeMode] = useState(false)
 
   // Search State
   const [suggestions, setSuggestions] = useState<LrcLibTrack[]>([])
@@ -267,12 +269,15 @@ export default function Home() {
         </div>
       )}
 
-      {/* Main Player */}
-      {currentSong && (
-        <div className='animate-in fade-in slide-in-from-bottom-10 duration-700'>
-          <Player song={currentSong} />
-        </div>
-      )}
+      {/* Main Player or Practice Mode */}
+      {currentSong &&
+        (practiceMode ? (
+          <PracticeMode song={currentSong} onExit={() => setPracticeMode(false)} />
+        ) : (
+          <div className='animate-in fade-in slide-in-from-bottom-10 duration-700'>
+            <Player song={currentSong} onStartPractice={() => setPracticeMode(true)} />
+          </div>
+        ))}
     </div>
   )
 }
