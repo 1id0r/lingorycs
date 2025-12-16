@@ -8,7 +8,8 @@ import type { Song } from '@/types'
 import type { LrcLibTrack } from '@/services/lyrics'
 import { Search, Loader2, Music, History, Clock } from 'lucide-react'
 import { history } from '@/utils/history'
-import { VideoTest } from '@/components/VideoTest' // DEBUG
+import { UserMenu } from '@/components/UserMenu'
+import { AuthModal } from '@/components/AuthModal'
 
 export default function Home() {
   const [query, setQuery] = useState('')
@@ -16,6 +17,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [practiceMode, setPracticeMode] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   // Search State
   const [suggestions, setSuggestions] = useState<LrcLibTrack[]>([])
@@ -57,22 +59,6 @@ export default function Home() {
     }, 400) // 400ms debounce
     return () => clearTimeout(timer)
   }, [query])
-
-  // TEMPORARY: Show video test instead
-  // Note: verify if window is defined for SSR safety, though useEffect handles client-side usually.
-  // In 'use client', this runs on client but initial render on server might fail if window accessed?
-  // We should wrap this in useEffect or check typeof window.
-  // Ideally move to useEffect, but for quick port:
-  const [showTest, setShowTest] = useState<string | null>(null)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setShowTest(new URLSearchParams(window.location.search).get('test'))
-    }
-  }, [])
-
-  if (showTest === 'video') {
-    return <VideoTest />
-  }
 
   const handleSelectTrack = async (track: LrcLibTrack) => {
     setLoading(true)
@@ -152,9 +138,12 @@ export default function Home() {
                 currentSong ? 'text-xl' : 'text-5xl'
               } font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400`}
             >
-              Ritmo
+              Espalingo
             </h1>
           </div>
+
+          {/* User Menu - Show in header when song is playing */}
+          {currentSong && <UserMenu onLoginClick={() => setShowAuthModal(true)} />}
 
           {/* Search Form */}
           <form
@@ -278,6 +267,9 @@ export default function Home() {
             <Player song={currentSong} onStartPractice={() => setPracticeMode(true)} />
           </div>
         ))}
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }
