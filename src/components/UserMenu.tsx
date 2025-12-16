@@ -33,7 +33,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onLoginClick }) => {
   const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
 
   return (
-    <div className='relative'>
+    <div className='relative z-[100]'>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className='flex items-center gap-2 p-1 pr-3 bg-white/5 hover:bg-white/10 rounded-full transition-colors'
@@ -52,8 +52,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onLoginClick }) => {
       {/* Dropdown */}
       {isOpen && (
         <>
-          <div className='fixed inset-0 z-40' onClick={() => setIsOpen(false)} />
-          <div className='absolute right-0 top-full mt-2 w-48 bg-neutral-900 border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden'>
+          <div className='fixed inset-0 z-[90]' onClick={() => setIsOpen(false)} />
+          <div className='absolute right-0 top-full mt-2 w-48 bg-neutral-900 border border-white/10 rounded-xl shadow-xl z-[100] overflow-hidden'>
             <div className='p-3 border-b border-white/10'>
               <p className='font-medium text-sm'>{displayName}</p>
               <p className='text-xs text-gray-400 truncate'>{user.email}</p>

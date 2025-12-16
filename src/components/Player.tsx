@@ -6,6 +6,7 @@ import { useAudioSync } from '../hooks/useAudioSync'
 import type { Song } from '../types'
 import { GraduationCap } from 'lucide-react'
 import clsx from 'clsx'
+import { LikeButton } from './LikeButton'
 
 // Define the ReactPlayer instance type for ref access
 interface ReactPlayerInstance {
@@ -19,9 +20,10 @@ interface ReactPlayerInstance {
 interface PlayerProps {
   song: Song
   onStartPractice?: () => void
+  onLoginRequired?: () => void
 }
 
-export const Player: React.FC<PlayerProps> = ({ song, onStartPractice }) => {
+export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRequired }) => {
   const [playing] = useState(true) // Auto-start
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -55,9 +57,12 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice }) => {
     <div className='flex flex-col h-[calc(100vh-4rem)] bg-neutral-900 text-white overflow-hidden'>
       {/* Song Info Bar - Top */}
       <div className='bg-black/80 backdrop-blur-md border-b border-white/10 p-4 shrink-0 flex items-center justify-between z-20'>
-        <div className='flex flex-col'>
-          <span className='font-bold text-lg'>{song.title}</span>
-          <span className='text-sm text-gray-400'>{song.artist}</span>
+        <div className='flex items-center gap-3'>
+          <LikeButton song={song} onLoginRequired={onLoginRequired} />
+          <div className='flex flex-col'>
+            <span className='font-bold text-lg'>{song.title}</span>
+            <span className='text-sm text-gray-400'>{song.artist}</span>
+          </div>
         </div>
 
         <div className='flex items-center gap-4'>
