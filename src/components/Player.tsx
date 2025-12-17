@@ -7,6 +7,7 @@ import type { Song } from '../types'
 import { GraduationCap } from 'lucide-react'
 import clsx from 'clsx'
 import { LikeButton } from './LikeButton'
+import { WordSelector } from './WordSelector'
 
 // Define the ReactPlayer instance type for ref access
 interface ReactPlayerInstance {
@@ -101,7 +102,7 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRe
       {/* Lyrics Display */}
       <div
         ref={lyricsContainerRef}
-        className='flex-1 overflow-y-auto px-6 py-12 space-y-8 text-center scroll-smooth'
+        className='flex-1 overflow-y-auto overflow-x-visible px-6 py-12 space-y-8 text-center scroll-smooth'
         style={{ scrollBehavior: 'smooth' }}
       >
         {song.lyrics.map((line, index) => {
@@ -110,20 +111,22 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRe
             <div
               key={index}
               className={clsx(
-                'transition-all duration-500 ease-in-out transform',
-                isActive ? 'opacity-100 scale-105' : 'opacity-30 scale-95 blur-[0.5px]'
+                'transition-all duration-500 ease-in-out transform relative',
+                isActive ? 'opacity-100 scale-105 z-[100]' : 'opacity-30 scale-95 blur-[0.5px]'
               )}
+              style={isActive ? { overflow: 'visible' } : undefined}
             >
-              <p
-                className={clsx(
-                  'font-bold text-2xl md:text-4xl mb-2',
-                  isActive
-                    ? 'text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500 animate-pulse drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]'
-                    : 'text-gray-300'
-                )}
-              >
-                {line.text_es}
-              </p>
+              {isActive ? (
+                <WordSelector
+                  textEs={line.text_es}
+                  textEn={line.text_en}
+                  songId={song.id}
+                  songTitle={song.title}
+                  onLoginRequired={onLoginRequired}
+                />
+              ) : (
+                <p className={clsx('font-bold text-2xl md:text-4xl mb-2', 'text-gray-300')}>{line.text_es}</p>
+              )}
               <p className={clsx('text-lg md:text-xl font-medium', isActive ? 'text-teal-200' : 'text-gray-500')}>
                 {line.text_en}
               </p>

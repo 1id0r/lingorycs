@@ -2,16 +2,25 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useLikedSongs } from '@/hooks/useLikedSongs'
 import { ArrowLeft, Heart, Music, Play, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AuthModal } from '@/components/AuthModal'
 import { useAuth } from '@/context/AuthContext'
+import { setPlaySong } from '@/utils/playSong'
+import type { LikedSong } from '@/services/userDataService'
 
 export default function LibraryPage() {
+  const router = useRouter()
   const { user } = useAuth()
   const { likedSongs, loading, unlike } = useLikedSongs()
   const [showAuthModal, setShowAuthModal] = useState(false)
+
+  const handlePlay = (song: LikedSong) => {
+    setPlaySong(song)
+    router.push('/')
+  }
 
   // Not logged in
   if (!user) {
@@ -102,12 +111,12 @@ export default function LibraryPage() {
 
                   {/* Hover actions */}
                   <div className='absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 bg-black/60 rounded-xl transition-opacity'>
-                    <Link
-                      href={`/?play=${encodeURIComponent(song.song_id)}`}
+                    <button
+                      onClick={() => handlePlay(song)}
                       className='p-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full hover:scale-110 transition-transform'
                     >
                       <Play size={20} className='fill-white' />
-                    </Link>
+                    </button>
                     <button
                       onClick={() => unlike(song.song_id)}
                       className='p-3 bg-white/10 hover:bg-red-500/20 rounded-full hover:scale-110 transition-all'

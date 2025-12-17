@@ -88,3 +88,55 @@ export const searchAndBuildSong = async (query: string): Promise<Song | null> =>
 
   return song;
 };
+
+// Build song from YouTube ID directly (for playing from library)
+export const buildSongFromYouTube = async (
+  youtubeId: string, 
+  title: string, 
+  artist: string
+): Promise<Song | null> => {
+  const cacheKey = `song_yt_${youtubeId}`;
+  const cachedSong = cache.getItem<Song>(cacheKey);
+  if (cachedSong) {
+    console.log(`Cache hit for YouTube ID: ${youtubeId}`);
+    return cachedSong;
+  }
+
+  try {
+    // Search for synced lyrics using title + artist
+    const query = `${artist} ${title}`;
+    const tracks = await LrcLib.searchTrack(query);
+    const track = tracks.find(t => t.syncedLyrics) || tracks[0];
+
+    if (!track || !track.syncedLyrics) {
+      console.warn('No synced lyrics found for library song');
+      return null;
+    }
+
+    // Parse lyrics
+    const parsedLyrics = LrcLib.parseLrc(track.syncedLyrics);
+
+    // Translate
+    const originalTexts = parsedLyrics.map(l => l.text_es);
+    const translatedTexts = await DeepL.translateLyrics(originalTexts);
+
+    const lyrics = parsedLyrics.map((line, index) => ({
+      ...line,
+      text_en: translatedTexts[index] || ""
+    }));
+
+    const song: Song = {
+      id: String(track.id),
+      title,
+      artist,
+      youtubeId,
+      lyrics
+    };
+
+    cache.setItem(cacheKey, song);
+    return song;
+  } catch (err) {
+    console.error('Error building song from YouTube ID:', err);
+    return null;
+  }
+};

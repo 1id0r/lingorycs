@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Player } from '@/components/Player'
 import { PracticeMode } from '@/components/PracticeMode'
-import { getSearchSuggestions, processTrackToSong } from '@/services/songService'
+import { getSearchSuggestions, processTrackToSong, buildSongFromYouTube } from '@/services/songService'
 import type { Song } from '@/types'
 import type { LrcLibTrack } from '@/services/lyrics'
-import { Library } from 'lucide-react'
+import { Library, BookOpen } from 'lucide-react'
 import { history } from '@/utils/history'
+import { getPlaySong, clearPlaySong } from '@/utils/playSong'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthModal } from '@/components/AuthModal'
 import { SearchBar } from '@/components/ui/SearchBar'
@@ -28,6 +30,29 @@ export default function Home() {
   useEffect(() => {
     setHistoryItems(history.getItems())
   }, [currentSong])
+
+  // Check for pending song from library
+  useEffect(() => {
+    const pendingSong = getPlaySong()
+    if (pendingSong) {
+      clearPlaySong()
+      setLoading(true)
+      setError(null)
+      buildSongFromYouTube(pendingSong.youtubeId, pendingSong.title, pendingSong.artist)
+        .then((song: Song | null) => {
+          if (song) {
+            setCurrentSong(song)
+          } else {
+            setError('Failed to load song from library.')
+          }
+        })
+        .catch((err: unknown) => {
+          console.error(err)
+          setError('Failed to load song.')
+        })
+        .finally(() => setLoading(false))
+    }
+  }, [])
 
   // Live search debounce
   useEffect(() => {
@@ -121,7 +146,11 @@ export default function Home() {
           <PracticeMode song={currentSong} onExit={() => setPracticeMode(false)} />
         ) : (
           <div className='animate-in fade-in slide-in-from-bottom-10 duration-700'>
-            <Player song={currentSong} onStartPractice={() => setPracticeMode(true)} />
+            <Player
+              song={currentSong}
+              onStartPractice={() => setPracticeMode(true)}
+              onLoginRequired={() => setShowAuthModal(true)}
+            />
           </div>
         )}
 
@@ -154,15 +183,21 @@ export default function Home() {
           </div>
 
           {/* Nav Links (Desktop) */}
-          <nav className='hidden md:flex items-center space-x-8'>
-            <a href='#explore' className='text-sm font-medium text-gray-300 hover:text-white transition-colors'>
-              Explore
-            </a>
-            <span className='flex items-center gap-2 text-sm font-medium text-gray-500 cursor-not-allowed'>
+          <nav className='hidden md:flex items-center space-x-6'>
+            <Link
+              href='/library'
+              className='flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white transition-colors'
+            >
               <Library size={16} />
               Library
-              <span className='text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full'>Soon</span>
-            </span>
+            </Link>
+            <Link
+              href='/vocabulary'
+              className='flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white transition-colors'
+            >
+              <BookOpen size={16} />
+              Word Bank
+            </Link>
           </nav>
 
           {/* User Menu */}
