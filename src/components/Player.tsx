@@ -57,23 +57,23 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRe
   return (
     <div className='flex flex-col h-[calc(100vh-4rem)] bg-neutral-900 text-white overflow-hidden'>
       {/* Song Info Bar - Top */}
-      <div className='bg-black/80 backdrop-blur-md border-b border-white/10 p-4 shrink-0 flex items-center justify-between z-20'>
-        <div className='flex items-center gap-3'>
+      <div className='bg-black/80 backdrop-blur-md border-b border-white/10 p-3 md:p-4 shrink-0 flex items-center justify-between z-20'>
+        <div className='flex items-center gap-2 md:gap-3'>
           <LikeButton song={song} onLoginRequired={onLoginRequired} />
           <div className='flex flex-col'>
-            <span className='font-bold text-lg'>{song.title}</span>
-            <span className='text-sm text-gray-400'>{song.artist}</span>
+            <span className='font-bold text-sm md:text-lg line-clamp-1'>{song.title}</span>
+            <span className='text-xs md:text-sm text-gray-400'>{song.artist}</span>
           </div>
         </div>
 
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-2 md:gap-4'>
           {onStartPractice && (
             <button
               onClick={onStartPractice}
-              className='flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold text-sm hover:from-purple-500 hover:to-teal-400 transition-all active:scale-95'
+              className='flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold text-xs md:text-sm hover:from-purple-500 hover:to-teal-400 transition-all active:scale-95'
             >
-              <GraduationCap size={18} />
-              Practice
+              <GraduationCap size={16} className='md:w-[18px] md:h-[18px]' />
+              <span className='hidden sm:inline'>Practice</span>
             </button>
           )}
         </div>
@@ -125,9 +125,16 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRe
                   onLoginRequired={onLoginRequired}
                 />
               ) : (
-                <p className={clsx('font-bold text-2xl md:text-4xl mb-2', 'text-gray-300')}>{line.text_es}</p>
+                <p className={clsx('font-bold text-lg sm:text-xl md:text-3xl lg:text-4xl mb-2', 'text-gray-300')}>
+                  {line.text_es}
+                </p>
               )}
-              <p className={clsx('text-lg md:text-xl font-medium', isActive ? 'text-teal-200' : 'text-gray-500')}>
+              <p
+                className={clsx(
+                  'text-sm sm:text-base md:text-lg lg:text-xl font-medium',
+                  isActive ? 'text-teal-200' : 'text-gray-500'
+                )}
+              >
                 {line.text_en}
               </p>
             </div>

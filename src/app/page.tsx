@@ -223,7 +223,7 @@ export default function Home() {
         </div>
 
         {/* Title */}
-        <h1 className='text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-center leading-tight mb-3 md:mb-4'>
+        <h1 className='text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-center leading-tight mb-3 md:mb-4'>
           <span className='bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-teal-200'>
             Learn Spanish
           </span>
@@ -234,7 +234,7 @@ export default function Home() {
         </h1>
 
         {/* Subtitle */}
-        <p className='text-sm sm:text-base md:text-lg lg:text-xl text-gray-400 text-center max-w-xl mb-6 md:mb-10 px-4'>
+        <p className='text-xs sm:text-sm md:text-base lg:text-lg text-gray-400 text-center max-w-xl mb-6 md:mb-10 px-4'>
           Sing along with synced lyrics, learn vocabulary, and practice with interactive exercises
         </p>
 

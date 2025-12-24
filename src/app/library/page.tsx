@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useLikedSongs } from '@/hooks/useLikedSongs'
-import { ArrowLeft, Heart, Music, Play, Loader2 } from 'lucide-react'
+import { Heart, Music, Play, Loader2, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AuthModal } from '@/components/AuthModal'
 import { useAuth } from '@/context/AuthContext'
@@ -25,32 +25,18 @@ export default function LibraryPage() {
   // Not logged in
   if (!user) {
     return (
-      <div className='min-h-screen bg-black text-white'>
-        <header className='sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5'>
-          <div className='container mx-auto px-6 h-16 flex items-center gap-4'>
-            <Link href='/' className='p-2 hover:bg-white/10 rounded-full transition-colors'>
-              <ArrowLeft size={20} />
-            </Link>
-            <h1 className='text-xl font-bold'>My Library</h1>
-          </div>
-        </header>
-
-        <main className='container mx-auto px-6 py-20 flex flex-col items-center justify-center text-center'>
-          <div className='p-6 bg-gradient-to-br from-purple-600/20 to-teal-500/20 rounded-full mb-6'>
-            <Heart size={48} className='text-purple-400' />
-          </div>
-          <h2 className='text-2xl font-bold mb-2'>Save your favorite songs</h2>
-          <p className='text-gray-400 mb-8 max-w-md'>
-            Sign in to create your personal library of liked songs and access them anytime.
-          </p>
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className='px-6 py-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold hover:from-purple-500 hover:to-teal-400 transition-all'
-          >
-            Sign In
-          </button>
-        </main>
-
+      <div className='min-h-screen bg-black text-white flex flex-col items-center justify-center px-6'>
+        <div className='w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6'>
+          <Heart size={32} className='text-gray-500' />
+        </div>
+        <h1 className='text-xl font-bold mb-2'>Your Library</h1>
+        <p className='text-gray-500 text-center text-sm mb-6 max-w-xs'>Sign in to save your favorite songs</p>
+        <button
+          onClick={() => setShowAuthModal(true)}
+          className='px-5 py-2.5 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-100 transition-colors'
+        >
+          Sign In
+        </button>
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
     )
@@ -58,78 +44,73 @@ export default function LibraryPage() {
 
   return (
     <div className='min-h-screen bg-black text-white'>
-      <header className='sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5'>
-        <div className='container mx-auto px-6 h-16 flex items-center gap-4'>
-          <Link href='/' className='p-2 hover:bg-white/10 rounded-full transition-colors'>
-            <ArrowLeft size={20} />
-          </Link>
-          <h1 className='text-xl font-bold'>My Library</h1>
-          <span className='text-sm text-gray-500'>({likedSongs.length} songs)</span>
-        </div>
-      </header>
+      {/* Header */}
+      <div className='px-4 md:px-8 pt-6 pb-4'>
+        <Link
+          href='/'
+          className='hidden md:inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-3 transition-colors'
+        >
+          ← Back to Home
+        </Link>
+        <h1 className='text-2xl font-bold'>Library</h1>
+        <p className='text-gray-500 text-sm'>{likedSongs.length} liked songs</p>
+      </div>
 
-      <main className='container mx-auto px-6 py-8'>
+      {/* Content */}
+      <div className='px-4 pb-24'>
         {loading ? (
           <div className='flex items-center justify-center py-20'>
-            <Loader2 className='animate-spin text-purple-400' size={40} />
+            <Loader2 className='animate-spin text-gray-500' size={24} />
           </div>
         ) : likedSongs.length === 0 ? (
-          <div className='flex flex-col items-center justify-center py-20 text-center'>
-            <div className='p-6 bg-white/5 rounded-full mb-6'>
-              <Music size={48} className='text-gray-500' />
+          <div className='flex flex-col items-center justify-center py-16 text-center'>
+            <div className='w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4'>
+              <Music size={24} className='text-gray-600' />
             </div>
-            <h2 className='text-xl font-bold mb-2'>No liked songs yet</h2>
-            <p className='text-gray-400 mb-6'>Like songs while listening to add them to your library.</p>
-            <Link
-              href='/'
-              className='px-6 py-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold hover:from-purple-500 hover:to-teal-400 transition-all'
-            >
-              Discover Songs
+            <p className='text-gray-500 text-sm mb-4'>No liked songs yet</p>
+            <Link href='/' className='text-sm text-white font-medium underline underline-offset-4 hover:text-gray-300'>
+              Discover songs
             </Link>
           </div>
         ) : (
-          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <div className='space-y-1'>
             <AnimatePresence>
               {likedSongs.map((song, index) => (
                 <motion.div
                   key={song.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: index * 0.05 }}
-                  className='group relative bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 transition-all'
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ delay: index * 0.03 }}
+                  className='flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors group'
                 >
-                  <div className='flex items-center gap-4'>
-                    <div className='shrink-0 w-16 h-16 bg-gradient-to-br from-purple-600/50 to-teal-500/50 rounded-lg flex items-center justify-center'>
-                      <Music size={24} className='text-white' />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <h3 className='font-bold truncate'>{song.title}</h3>
-                      <p className='text-sm text-gray-400 truncate'>{song.artist}</p>
-                    </div>
+                  {/* Play button / Music icon */}
+                  <button
+                    onClick={() => handlePlay(song)}
+                    className='w-10 h-10 shrink-0 rounded-md bg-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors'
+                  >
+                    <Play size={16} className='fill-current ml-0.5' />
+                  </button>
+
+                  {/* Song info */}
+                  <div className='flex-1 min-w-0' onClick={() => handlePlay(song)}>
+                    <p className='font-medium text-sm truncate'>{song.title}</p>
+                    <p className='text-xs text-gray-500 truncate'>{song.artist}</p>
                   </div>
 
-                  {/* Hover actions */}
-                  <div className='absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 bg-black/60 rounded-xl transition-opacity'>
-                    <button
-                      onClick={() => handlePlay(song)}
-                      className='p-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full hover:scale-110 transition-transform'
-                    >
-                      <Play size={20} className='fill-white' />
-                    </button>
-                    <button
-                      onClick={() => unlike(song.song_id)}
-                      className='p-3 bg-white/10 hover:bg-red-500/20 rounded-full hover:scale-110 transition-all'
-                    >
-                      <Heart size={20} className='fill-red-500 text-red-500' />
-                    </button>
-                  </div>
+                  {/* Actions */}
+                  <button
+                    onClick={() => unlike(song.song_id)}
+                    className='p-2 text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all'
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         )}
-      </main>
+      </div>
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useWordBank } from '@/hooks/useWordBank'
-import { ArrowLeft, BookOpen, Sparkles, Trash2, Loader2, GraduationCap } from 'lucide-react'
+import { BookOpen, Sparkles, Trash2, Loader2, Play, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AuthModal } from '@/components/AuthModal'
 import { Flashcard } from '@/components/Flashcard'
@@ -19,32 +19,20 @@ export default function VocabularyPage() {
   // Not logged in
   if (!user) {
     return (
-      <div className='min-h-screen bg-black text-white'>
-        <header className='sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5'>
-          <div className='container mx-auto px-6 h-16 flex items-center gap-4'>
-            <Link href='/' className='p-2 hover:bg-white/10 rounded-full transition-colors'>
-              <ArrowLeft size={20} />
-            </Link>
-            <h1 className='text-xl font-bold'>Word Bank</h1>
-          </div>
-        </header>
-
-        <main className='container mx-auto px-6 py-20 flex flex-col items-center justify-center text-center'>
-          <div className='p-6 bg-gradient-to-br from-purple-600/20 to-teal-500/20 rounded-full mb-6'>
-            <BookOpen size={48} className='text-purple-400' />
-          </div>
-          <h2 className='text-2xl font-bold mb-2'>Build your vocabulary</h2>
-          <p className='text-gray-400 mb-8 max-w-md'>
-            Sign in to save words from songs and practice them with flashcards.
-          </p>
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className='px-6 py-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold hover:from-purple-500 hover:to-teal-400 transition-all'
-          >
-            Sign In
-          </button>
-        </main>
-
+      <div className='min-h-screen bg-black text-white flex flex-col items-center justify-center px-6'>
+        <div className='w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6'>
+          <BookOpen size={32} className='text-gray-500' />
+        </div>
+        <h1 className='text-xl font-bold mb-2'>Word Bank</h1>
+        <p className='text-gray-500 text-center text-sm mb-6 max-w-xs'>
+          Sign in to save words and practice with flashcards
+        </p>
+        <button
+          onClick={() => setShowAuthModal(true)}
+          className='px-5 py-2.5 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-100 transition-colors'
+        >
+          Sign In
+        </button>
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
     )
@@ -57,60 +45,43 @@ export default function VocabularyPage() {
     if (!currentWord) {
       // All cards reviewed
       return (
-        <div className='min-h-screen bg-black text-white'>
-          <header className='sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5'>
-            <div className='container mx-auto px-6 h-16 flex items-center gap-4'>
-              <button
-                onClick={() => setPracticeMode(false)}
-                className='p-2 hover:bg-white/10 rounded-full transition-colors'
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <h1 className='text-xl font-bold'>Practice Complete!</h1>
-            </div>
-          </header>
-
-          <main className='container mx-auto px-6 py-20 flex flex-col items-center justify-center text-center'>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className='p-8 bg-gradient-to-br from-green-600/20 to-teal-500/20 rounded-full mb-6'
-            >
-              <Sparkles size={64} className='text-green-400' />
-            </motion.div>
-            <h2 className='text-3xl font-bold mb-2'>Great job! 🎉</h2>
-            <p className='text-gray-400 mb-8'>You've reviewed all due words. Come back later for more practice.</p>
-            <button
-              onClick={() => setPracticeMode(false)}
-              className='px-6 py-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold hover:from-purple-500 hover:to-teal-400 transition-all'
-            >
-              Back to Word Bank
-            </button>
-          </main>
+        <div className='min-h-screen bg-black text-white flex flex-col items-center justify-center px-6'>
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className='w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mb-6'
+          >
+            <Sparkles size={40} className='text-green-400' />
+          </motion.div>
+          <h1 className='text-2xl font-bold mb-2'>All done! 🎉</h1>
+          <p className='text-gray-500 text-center text-sm mb-6'>Come back later for more practice</p>
+          <button
+            onClick={() => setPracticeMode(false)}
+            className='px-5 py-2.5 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-100 transition-colors'
+          >
+            Back to Words
+          </button>
         </div>
       )
     }
 
     return (
       <div className='min-h-screen bg-black text-white'>
-        <header className='sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5'>
-          <div className='container mx-auto px-6 h-16 flex items-center justify-between'>
-            <div className='flex items-center gap-4'>
-              <button
-                onClick={() => setPracticeMode(false)}
-                className='p-2 hover:bg-white/10 rounded-full transition-colors'
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <h1 className='text-xl font-bold'>Practice</h1>
-            </div>
-            <span className='text-sm text-gray-400'>
-              {currentCardIndex + 1} / {reviewQueue.length}
-            </span>
-          </div>
-        </header>
+        {/* Header */}
+        <div className='flex items-center justify-between px-4 pt-4'>
+          <button
+            onClick={() => setPracticeMode(false)}
+            className='p-2 hover:bg-white/10 rounded-full transition-colors'
+          >
+            <X size={20} />
+          </button>
+          <span className='text-sm text-gray-500'>
+            {currentCardIndex + 1} of {reviewQueue.length}
+          </span>
+        </div>
 
-        <main className='container mx-auto px-6 py-16 flex flex-col items-center justify-center'>
+        {/* Flashcard */}
+        <div className='flex-1 flex items-center justify-center px-4 py-8'>
           <Flashcard
             wordEs={currentWord.word_es}
             wordEn={currentWord.word_en}
@@ -120,93 +91,91 @@ export default function VocabularyPage() {
               setCurrentCardIndex((prev) => prev + 1)
             }}
           />
-        </main>
+        </div>
       </div>
     )
   }
 
   return (
     <div className='min-h-screen bg-black text-white'>
-      <header className='sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5'>
-        <div className='container mx-auto px-6 h-16 flex items-center justify-between'>
-          <div className='flex items-center gap-4'>
-            <Link href='/' className='p-2 hover:bg-white/10 rounded-full transition-colors'>
-              <ArrowLeft size={20} />
-            </Link>
-            <h1 className='text-xl font-bold'>Word Bank</h1>
-            <span className='text-sm text-gray-500'>({words.length} words)</span>
+      {/* Header */}
+      <div className='px-4 md:px-8 pt-6 pb-4'>
+        <Link
+          href='/'
+          className='hidden md:inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-3 transition-colors'
+        >
+          ← Back to Home
+        </Link>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h1 className='text-2xl font-bold'>Words</h1>
+            <p className='text-gray-500 text-sm'>{words.length} saved</p>
           </div>
-
           {reviewCount > 0 && (
             <button
               onClick={() => {
                 setCurrentCardIndex(0)
                 setPracticeMode(true)
               }}
-              className='flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold text-sm hover:from-purple-500 hover:to-teal-400 transition-all'
+              className='flex items-center gap-2 px-4 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-100 transition-colors'
             >
-              <GraduationCap size={18} />
+              <Play size={14} className='fill-current' />
               Practice ({reviewCount})
             </button>
           )}
         </div>
-      </header>
+      </div>
 
-      <main className='container mx-auto px-6 py-8'>
+      {/* Content */}
+      <div className='px-4 pb-24'>
         {loading ? (
           <div className='flex items-center justify-center py-20'>
-            <Loader2 className='animate-spin text-purple-400' size={40} />
+            <Loader2 className='animate-spin text-gray-500' size={24} />
           </div>
         ) : words.length === 0 ? (
-          <div className='flex flex-col items-center justify-center py-20 text-center'>
-            <div className='p-6 bg-white/5 rounded-full mb-6'>
-              <BookOpen size={48} className='text-gray-500' />
+          <div className='flex flex-col items-center justify-center py-16 text-center'>
+            <div className='w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4'>
+              <BookOpen size={24} className='text-gray-600' />
             </div>
-            <h2 className='text-xl font-bold mb-2'>No words saved yet</h2>
-            <p className='text-gray-400 mb-6 max-w-md'>
-              While listening to songs, tap on words in the lyrics to add them to your word bank.
-            </p>
-            <Link
-              href='/'
-              className='px-6 py-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold hover:from-purple-500 hover:to-teal-400 transition-all'
-            >
-              Discover Songs
+            <p className='text-gray-500 text-sm mb-2'>No words saved yet</p>
+            <p className='text-gray-600 text-xs mb-4'>Tap words in lyrics to save them</p>
+            <Link href='/' className='text-sm text-white font-medium underline underline-offset-4 hover:text-gray-300'>
+              Find songs
             </Link>
           </div>
         ) : (
-          <div className='space-y-3'>
+          <div className='space-y-2'>
             <AnimatePresence>
               {words.map((word, index) => (
                 <motion.div
                   key={word.id}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ delay: index * 0.03 }}
-                  className='group flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 transition-all'
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ delay: index * 0.02 }}
+                  className='flex items-center justify-between p-3 rounded-lg bg-white/5 group'
                 >
-                  <div className='flex-1'>
-                    <div className='flex items-center gap-3'>
-                      <span className='font-bold text-lg'>{word.word_es}</span>
-                      <span className='text-gray-500'>→</span>
-                      <span className='text-gray-300'>{word.word_en}</span>
+                  <div className='flex-1 min-w-0'>
+                    <div className='flex items-center gap-2'>
+                      <span className='font-semibold text-sm'>{word.word_es}</span>
+                      <span className='text-gray-600'>·</span>
+                      <span className='text-gray-400 text-sm truncate'>{word.word_en}</span>
                     </div>
-                    {word.song_title && <span className='text-xs text-gray-500'>from "{word.song_title}"</span>}
+                    {word.song_title && <p className='text-xs text-gray-600 truncate mt-0.5'>{word.song_title}</p>}
                   </div>
 
                   <button
                     onClick={() => removeWord(word.id)}
-                    className='p-2 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition-all'
-                    title='Remove word'
+                    className='p-2 text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all'
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={14} />
                   </button>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         )}
-      </main>
+      </div>
     </div>
   )
 }
