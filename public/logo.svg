@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="120" fill="url(#bgGradient)"/>
+  
+  <g transform="translate(256 230) scale(1.6) translate(-256 -230)">
+      <path d="M256 360L190 220C185 200 200 160 256 160C312 160 327 200 322 220L256 360Z" fill="white"/>
+      
+      <path d="M256 320V200" stroke="#FF6B6B" stroke-width="12" stroke-linecap="round"/>
+      
+      <path d="M190 130C190 130 210 100 256 130C302 160 322 130 322 130" stroke="white" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF512F"/>
+      <stop offset="100%" stop-color="#DD2476"/>
+    </linearGradient>
+  </defs>
+</svg>

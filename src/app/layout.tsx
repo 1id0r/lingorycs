@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   title: 'Espalingo - Learn Spanish with Music',
   description: 'Learn Spanish through your favorite songs with synced lyrics and interactive exercises',
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
   },
 }
 

@@ -110,7 +110,7 @@ export default function Home() {
                 searchFocused ? 'hidden md:flex' : 'flex'
               }`}
             >
-              <img src='/logo.png' alt='Espalingo' className='h-10 w-10 rounded-xl' />
+              <img src='/logo.svg' alt='Espalingo' className='h-10 w-10 rounded-xl' />
             </button>
 
             {/* Search Bar - full width on mobile when focused */}
@@ -176,7 +176,7 @@ export default function Home() {
         <div className='container mx-auto flex justify-between items-center'>
           {/* Logo */}
           <div className='flex items-center gap-3'>
-            <img src='/logo.png' alt='Espalingo' className='h-12 w-12 rounded-xl' />
+            <img src='/logo.svg' alt='Espalingo' className='h-12 w-12 rounded-xl' />
             <span className='text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400'>
               Espalingo
             </span>
