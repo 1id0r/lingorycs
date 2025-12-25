@@ -1,64 +1,45 @@
-const API_KEY = process.env.NEXT_PUBLIC_DEEPL_API_KEY;
-// Using CORS proxy for development (browser limitation workaround)
-const CORS_PROXY = 'https://corsproxy.io/?';
-const BASE_URL = `${CORS_PROXY}https://api-free.deepl.com/v2`;
+// Translation service - calls server API route (keys are secure on server)
 
-export const translateText = async (text: string, targetLang: string = 'EN'): Promise<string> => {
-  if (!API_KEY) return text;
-
+export const translateText = async (text: string): Promise<string> => {
   try {
-    const formData = new URLSearchParams();
-    formData.append('auth_key', API_KEY);
-    formData.append('text', text);
-    formData.append('target_lang', targetLang);
-
-    const response = await fetch(`${BASE_URL}/translate`, {
+    const response = await fetch('/api/translate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texts: [text] }),
     });
 
     if (!response.ok) {
-       console.error("DeepL Error", await response.text());
-       return text; // Fallback to original
+      console.error('Translation API error');
+      return text;
     }
 
     const data = await response.json();
-    return data.translations[0].text;
+    return data.translations?.[0] || text;
   } catch (error) {
-    console.error("DeepL request failed", error);
+    console.error('Translation request failed', error);
     return text;
   }
 };
 
 export const translateLyrics = async (lines: string[]): Promise<string[]> => {
-    // DeepL allows batching, but for simplicity/limits lets batch slightly or do one big request?
-    // Doing one big request with multiple 'text' params is best for DeepL.
-    
-    if (!API_KEY) return lines;
+  if (!lines || lines.length === 0) return lines;
 
-    try {
-        const formData = new URLSearchParams();
-        formData.append('auth_key', API_KEY);
-        formData.append('target_lang', 'EN');
-        lines.forEach(line => formData.append('text', line));
+  try {
+    const response = await fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texts: lines }),
+    });
 
-        const response = await fetch(`${BASE_URL}/translate`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData
-          });
-      
-          if (!response.ok) return lines;
-      
-          const data = await response.json();
-          return data.translations.map((t: any) => t.text);
-
-    } catch (e) {
-        return lines;
+    if (!response.ok) {
+      console.error('Translation API error');
+      return lines;
     }
-}
+
+    const data = await response.json();
+    return data.translations || lines;
+  } catch (error) {
+    console.error('Translation request failed', error);
+    return lines;
+  }
+};

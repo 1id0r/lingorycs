@@ -1,7 +1,6 @@
 import { getSupabase } from '../lib/supabase';
+import { searchVideos } from './youtube';
 
-const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
-const YOUTUBE_BASE_URL = 'https://www.googleapis.com/youtube/v3';
 const CACHE_DURATION_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 export interface ExploreSong {
@@ -27,14 +26,12 @@ export const GENRES = [
 
 // Parse YouTube video title into title and artist
 function parseVideoTitle(fullTitle: string): { title: string; artist: string } {
-  // Common patterns: "Artist - Title", "Title - Artist", "Artist | Title"
   const separators = [' - ', ' – ', ' — ', ' | '];
-  
+
   for (const sep of separators) {
     if (fullTitle.includes(sep)) {
       const parts = fullTitle.split(sep);
       if (parts.length >= 2) {
-        // Assume first part is artist, second is title
         return {
           artist: parts[0].trim(),
           title: parts.slice(1).join(sep).trim(),
@@ -42,62 +39,59 @@ function parseVideoTitle(fullTitle: string): { title: string; artist: string } {
       }
     }
   }
-  
-  // No separator found, use full title
+
   return { title: fullTitle, artist: 'Unknown Artist' };
 }
 
 // Keywords that indicate a mix/compilation (not a single song)
 const EXCLUDE_KEYWORDS = [
-  'mix', 'session', 'dj set', 'compilation', 'playlist', 'hour', 
-  'nonstop', 'megamix', 'medley', 'mashup', 'best of', 'top 10',
-  'top 20', 'exitos', 'greatest hits', 'lo mejor'
+  'mix',
+  'session',
+  'dj set',
+  'compilation',
+  'playlist',
+  'hour',
+  'nonstop',
+  'megamix',
+  'medley',
+  'mashup',
+  'best of',
+  'top 10',
+  'top 20',
+  'exitos',
+  'greatest hits',
+  'lo mejor',
 ];
 
 function isMixOrCompilation(title: string): boolean {
   const lowerTitle = title.toLowerCase();
-  return EXCLUDE_KEYWORDS.some(keyword => lowerTitle.includes(keyword));
+  return EXCLUDE_KEYWORDS.some((keyword) => lowerTitle.includes(keyword));
 }
 
-// Fetch songs from YouTube API
+// Fetch songs from YouTube via secure API route
 async function fetchFromYouTube(query: string): Promise<ExploreSong[]> {
-  if (!YOUTUBE_API_KEY) {
-    console.error('YouTube API key missing');
-    return [];
-  }
-
   try {
-    // Fetch more results so we can filter and still have enough
-    const response = await fetch(
-      `${YOUTUBE_BASE_URL}/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=25&videoCategoryId=10&key=${YOUTUBE_API_KEY}`
-    );
+    const items = await searchVideos(query, 25);
 
-    if (!response.ok) {
-      console.error('YouTube API error:', await response.text());
-      return [];
-    }
-
-    const data = await response.json();
-    
-    const songs = data.items?.map((item: { id: { videoId: string }; snippet: { title: string; thumbnails: { high?: { url: string }; medium?: { url: string } } } }) => {
-      const { title, artist } = parseVideoTitle(item.snippet.title);
+    const songs = items.map((item) => {
+      const { title, artist } = parseVideoTitle(item.title);
       return {
-        youtubeId: item.id.videoId,
+        youtubeId: item.videoId,
         title,
         artist,
-        thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url || '',
-        rawTitle: item.snippet.title, // Keep original for filtering
+        thumbnail: item.thumbnail,
+        rawTitle: item.title,
       };
-    }) || [];
+    });
 
     // Filter out mixes and compilations, then take first 12
     const filteredSongs = songs
-      .filter((song: { rawTitle: string }) => !isMixOrCompilation(song.rawTitle))
+      .filter((song) => !isMixOrCompilation(song.rawTitle))
       .slice(0, 12)
-      .map(({ rawTitle, ...rest }: { rawTitle: string; youtubeId: string; title: string; artist: string; thumbnail: string }) => rest);
+      .map(({ rawTitle, ...rest }) => rest);
 
     console.log(`[Explore] Filtered ${songs.length - filteredSongs.length} mixes, keeping ${filteredSongs.length} songs`);
-    
+
     return filteredSongs;
   } catch (err) {
     console.error('Failed to fetch from YouTube:', err);
@@ -109,11 +103,7 @@ async function fetchFromYouTube(query: string): Promise<ExploreSong[]> {
 async function getCachedGenre(genre: string): Promise<ExploreSong[] | null> {
   try {
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from('explore_cache')
-      .select('*')
-      .eq('genre', genre)
-      .single();
+    const { data, error } = await supabase.from('explore_cache').select('*').eq('genre', genre).single();
 
     if (error || !data) return null;
 
@@ -121,7 +111,6 @@ async function getCachedGenre(genre: string): Promise<ExploreSong[] | null> {
     const updatedAt = new Date(cached.updated_at).getTime();
     const now = Date.now();
 
-    // Check if cache is still fresh
     if (now - updatedAt < CACHE_DURATION_MS) {
       console.log(`[Explore Cache] Hit for genre: ${genre}`);
       return cached.songs;
