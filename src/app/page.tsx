@@ -7,7 +7,7 @@ import { PracticeMode } from '@/components/PracticeMode'
 import { getSearchSuggestions, processTrackToSong, buildSongFromYouTube } from '@/services/songService'
 import type { Song } from '@/types'
 import type { LrcLibTrack } from '@/services/lyrics'
-import { Library, BookOpen } from 'lucide-react'
+import { Library, BookOpen, Compass } from 'lucide-react'
 import { history } from '@/utils/history'
 import { getPlaySong, clearPlaySong } from '@/utils/playSong'
 import { UserMenu } from '@/components/UserMenu'
@@ -159,6 +159,18 @@ export default function Home() {
     )
   }
 
+  // Loading screen when loading song from Explore/Library
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-black text-white flex flex-col items-center justify-center'>
+        <div className='flex flex-col items-center gap-4'>
+          <div className='w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin' />
+          <p className='text-gray-400 text-sm'>Loading lyrics...</p>
+        </div>
+      </div>
+    )
+  }
+
   // Full Hero Landing Page
   return (
     <div className='min-h-screen bg-black text-white selection:bg-purple-500/30 relative overflow-hidden'>
@@ -184,6 +196,13 @@ export default function Home() {
 
           {/* Nav Links (Desktop) */}
           <nav className='hidden md:flex items-center space-x-6'>
+            <Link
+              href='/explore'
+              className='flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white transition-colors'
+            >
+              <Compass size={16} />
+              Explore
+            </Link>
             <Link
               href='/library'
               className='flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white transition-colors'
