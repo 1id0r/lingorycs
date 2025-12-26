@@ -142,8 +142,11 @@ export default function ExplorePage() {
                 transition={{ delay: index * 0.05 }}
                 className='group'
               >
-                {/* Thumbnail */}
-                <div className='relative aspect-video rounded-2xl overflow-hidden bg-white/5 mb-3 shadow-lg'>
+                {/* Thumbnail - clickable on mobile */}
+                <div
+                  className='relative aspect-video rounded-2xl overflow-hidden bg-white/5 mb-3 shadow-lg cursor-pointer'
+                  onClick={() => handlePlay(song)}
+                >
                   {song.thumbnail ? (
                     <img src={song.thumbnail} alt={song.title} className='w-full h-full object-cover' />
                   ) : (
@@ -152,10 +155,13 @@ export default function ExplorePage() {
                     </div>
                   )}
 
-                  {/* Hover overlay */}
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3'>
+                  {/* Hover overlay - always visible on mobile, hover on desktop */}
+                  <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity items-end justify-between p-3'>
                     <button
-                      onClick={() => handlePlay(song)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handlePlay(song)
+                      }}
                       className='p-3 bg-white rounded-full hover:scale-110 transition-transform shadow-lg'
                     >
                       <Play size={16} className='fill-black text-black ml-0.5' />
