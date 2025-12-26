@@ -19,6 +19,7 @@ export const SUPPORTED_LANGUAGES: Language[] = [
   { code: 'IT', name: 'Italian', flag: '🇮🇹' },
   { code: 'PT', name: 'Portuguese', flag: '🇵🇹' },
   { code: 'RU', name: 'Russian', flag: '🇷🇺' },
+  { code: 'LT', name: 'Lithuanian', flag: '🇱🇹' },
 ]
 
 interface LanguageSelectorProps {
