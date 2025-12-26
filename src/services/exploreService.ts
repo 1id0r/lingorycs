@@ -1,5 +1,6 @@
 import { getSupabase } from '../lib/supabase';
 import { searchVideos } from './youtube';
+import { searchTrack } from './lyrics';
 
 const CACHE_DURATION_MS = 6 * 60 * 60 * 1000; // 6 hours
 
@@ -8,6 +9,7 @@ export interface ExploreSong {
   title: string;
   artist: string;
   thumbnail: string;
+  isSynced?: boolean;
 }
 
 interface CachedGenreData {
@@ -71,7 +73,7 @@ function isMixOrCompilation(title: string): boolean {
 // Fetch songs from YouTube via secure API route
 async function fetchFromYouTube(query: string): Promise<ExploreSong[]> {
   try {
-    const items = await searchVideos(query, 25);
+    const items = await searchVideos(query, 80); // Increased from 25 to get a larger pool
 
     const songs = items.map((item) => {
       const { title, artist } = parseVideoTitle(item.title);
@@ -84,15 +86,41 @@ async function fetchFromYouTube(query: string): Promise<ExploreSong[]> {
       };
     });
 
-    // Filter out mixes and compilations, then take first 12
-    const filteredSongs = songs
-      .filter((song) => !isMixOrCompilation(song.rawTitle))
-      .slice(0, 12)
-      .map(({ rawTitle, ...rest }) => rest);
+    // Filter out mixes and compilations
+    const filteredSongs = songs.filter((song) => !isMixOrCompilation(song.rawTitle));
 
-    console.log(`[Explore] Filtered ${songs.length - filteredSongs.length} mixes, keeping ${filteredSongs.length} songs`);
+    console.log(`[Explore] Filtered ${songs.length - filteredSongs.length} mixes. Checking sync status for the rest...`);
 
-    return filteredSongs;
+    // Check LRCLIB for synced lyrics for each song (parallel)
+    const syncedSongs = await Promise.all(
+      filteredSongs.map(async (song) => {
+        try {
+          const lrcQuery = `${song.artist} ${song.title}`;
+          const tracks = await searchTrack(lrcQuery);
+          const hasSynced = tracks.some((t) => t.syncedLyrics && t.syncedLyrics.length > 0);
+          
+          if (hasSynced) {
+            return { 
+              youtubeId: song.youtubeId,
+              title: song.title,
+              artist: song.artist,
+              thumbnail: song.thumbnail,
+              isSynced: true 
+            } as ExploreSong;
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    // Keep only synced songs and limit to 20
+    const finalSongs = syncedSongs.filter((s): s is ExploreSong => s !== null).slice(0, 24);
+    
+    console.log(`[Explore] Found ${finalSongs.length} synced songs out of ${filteredSongs.length} candidates`);
+
+    return finalSongs;
   } catch (err) {
     console.error('Failed to fetch from YouTube:', err);
     return [];

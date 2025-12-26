@@ -4,21 +4,19 @@ const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 const DEEPL_URL = 'https://api-free.deepl.com/v2/translate';
 
 // Lingva is a free translation API (uses Google Translate backend)
-const LINGVA_URL = 'https://lingva.ml/api/v1/es/en';
+const LINGVA_URL = 'https://lingva.ml/api/v1';
 
-interface TranslateRequest {
-  texts: string[];
-}
+
 
 // Translate with DeepL (primary)
-async function translateWithDeepL(texts: string[]): Promise<string[]> {
+async function translateWithDeepL(texts: string[], targetLang: string = 'EN'): Promise<string[]> {
   if (!DEEPL_API_KEY) {
     throw new Error('DeepL API key not configured');
   }
 
   const formData = new URLSearchParams();
   formData.append('auth_key', DEEPL_API_KEY);
-  formData.append('target_lang', 'EN');
+  formData.append('target_lang', targetLang);
   formData.append('source_lang', 'ES');
   texts.forEach((text) => formData.append('text', text));
 
@@ -39,23 +37,27 @@ async function translateWithDeepL(texts: string[]): Promise<string[]> {
 }
 
 // Translate with Lingva (free fallback) - parallel for speed
-async function translateWithLingva(texts: string[]): Promise<string[]> {
-  console.log(`🟡 [Lingva] Translating ${texts.length} texts in parallel...`);
+async function translateWithLingva(texts: string[], targetLang: string = 'EN'): Promise<string[]> {
+  console.log(`🟡 [Lingva] Translating ${texts.length} texts in parallel to ${targetLang}...`);
+  // Map standard codes to Lingva codes if needed (usually 2 letter is fine)
+  const lang = targetLang.toLowerCase();
   
   const promises = texts.map(async (text) => {
     try {
-      const response = await fetch(`${LINGVA_URL}/${encodeURIComponent(text)}`, {
+      const response = await fetch(`${LINGVA_URL}/es/${lang}/${encodeURIComponent(text)}`, {
         signal: AbortSignal.timeout(10000), // 10s timeout per request
       });
 
       if (!response.ok) {
-        return text; // Keep original on error
+        console.error(`[Lingva] API error for text: "${text.substring(0, 20)}..." status: ${response.status}`);
+        return ''; // Return empty string to indicate no translation
       }
 
       const data = await response.json();
-      return data.translation || text;
-    } catch {
-      return text; // Keep original on error
+      return data.translation || '';
+    } catch (err) {
+      console.error(`[Lingva] request failed for text: "${text.substring(0, 20)}..." error:`, err);
+      return ''; // Return empty string on error
     }
   });
 
@@ -64,8 +66,8 @@ async function translateWithLingva(texts: string[]): Promise<string[]> {
 
 export async function POST(request: Request) {
   try {
-    const body: TranslateRequest = await request.json();
-    const { texts } = body;
+    const body = await request.json(); // Don't enforce type check here to avoid "TranslateRequest" import issues if loose
+    const { texts, targetLang = 'EN' } = body;
 
     if (!texts || !Array.isArray(texts) || texts.length === 0) {
       return NextResponse.json({ error: 'texts array required' }, { status: 400 });
@@ -76,18 +78,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Maximum 100 texts per request' }, { status: 400 });
     }
 
+    const isDev = process.env.NODE_ENV === 'development';
     let translations: string[];
 
-    // Try DeepL first, fallback to Lingva
-    try {
-      console.log('🔵 [Translate] Attempting DeepL...');
-      translations = await translateWithDeepL(texts);
-      console.log(`✅ [Translate] DeepL SUCCESS - ${texts.length} texts translated`);
-    } catch (error) {
-      console.warn('⚠️ [Translate] DeepL FAILED:', error);
-      console.log('🟡 [Translate] Switching to Lingva fallback...');
-      translations = await translateWithLingva(texts);
-      console.log(`✅ [Translate] Lingva fallback SUCCESS - ${texts.length} texts translated`);
+    if (isDev) {
+      console.log(`🟡 [Translate] Development mode: Prioritizing Lingva (Target: ${targetLang})...`);
+      translations = await translateWithLingva(texts, targetLang);
+      
+      // If Lingva fails (returns empty strings), try DeepL as ultimate fallback in dev if key exists
+      const failed = translations.every(t => !t);
+      if (failed && DEEPL_API_KEY) {
+        console.warn('⚠️ [Translate] Lingva failed in dev, trying DeepL as fallback...');
+        translations = await translateWithDeepL(texts, targetLang);
+      }
+    } else {
+      // Production: Try DeepL first, fallback to Lingva
+      try {
+        console.log(`🔵 [Translate] Attempting DeepL (Target: ${targetLang})...`);
+        translations = await translateWithDeepL(texts, targetLang);
+        console.log(`✅ [Translate] DeepL SUCCESS - ${texts.length} texts translated`);
+      } catch (error) {
+        console.warn('⚠️ [Translate] DeepL FAILED:', error);
+        console.log('🟡 [Translate] Switching to Lingva fallback...');
+        translations = await translateWithLingva(texts, targetLang);
+        console.log(`✅ [Translate] Lingva fallback SUCCESS - ${texts.length} texts translated`);
+      }
     }
 
     return NextResponse.json({ translations });

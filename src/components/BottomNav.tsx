@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Compass, Library, BookOpen } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -16,8 +16,15 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className='fixed bottom-0 left-0 right-0 z-[9999] md:hidden bg-black/90 backdrop-blur-xl border-t border-white/10 safe-area-inset-bottom'>
-      <div className='flex items-center justify-around h-16 px-4'>
+    <nav className='fixed bottom-0 left-0 right-0 z-[9999] md:hidden'>
+      {/* Blur background */}
+      <div className='absolute inset-0 bg-black/50 backdrop-blur-2xl border-t border-white/10' />
+
+      {/* Content */}
+      <div
+        className='relative flex items-center justify-around h-20 px-2'
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
+      >
         {navItems.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
@@ -26,14 +33,30 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all',
-                isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'
-              )}
+              className='relative flex flex-col items-center justify-center w-full py-3'
             >
-              <Icon size={22} className={cn('transition-transform', isActive && 'scale-110')} />
-              <span className={cn('text-[10px] font-medium', isActive && 'text-white')}>{item.label}</span>
-              {isActive && <div className='absolute bottom-1 w-1 h-1 bg-white rounded-full' />}
+              {/* Active indicator pill */}
+              {isActive && (
+                <motion.div
+                  layoutId='activeTab'
+                  className='absolute top-0 w-12 h-1 bg-white rounded-full'
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+
+              {/* Icon container */}
+              <motion.div
+                className={`flex items-center justify-center w-12 h-12 rounded-2xl transition-colors ${
+                  isActive ? 'bg-white/10' : ''
+                }`}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Icon
+                  size={isActive ? 28 : 26}
+                  strokeWidth={isActive ? 2.5 : 2}
+                  className={`transition-all ${isActive ? 'text-white' : 'text-gray-400'}`}
+                />
+              </motion.div>
             </Link>
           )
         })}

@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Check, X } from 'lucide-react'
+import { Plus, Check } from 'lucide-react'
 import { useWordBank } from '@/hooks/useWordBank'
+import { cleanWord } from '@/utils/textUtils'
 
 interface WordSelectorProps {
   textEs: string
@@ -28,8 +29,8 @@ export function WordSelector({ textEs, textEn, songId, songTitle, onLoginRequire
       return
     }
 
-    const cleanWord = word.replace(/[.,!?¿¡'"]/g, '')
-    if (added.has(cleanWord)) return
+    const cleaned = cleanWord(word)
+    if (added.has(cleaned)) return
 
     setSelectedWord({ word, index })
   }
@@ -38,13 +39,13 @@ export function WordSelector({ textEs, textEn, songId, songTitle, onLoginRequire
     if (!selectedWord) return
 
     setAdding(true)
-    const cleanWord = selectedWord.word.replace(/[.,!?¿¡'"]/g, '')
-    const translation = translations[selectedWord.index] || textEn
+    const spanishWord = cleanWord(selectedWord.word)
+    const englishWord = cleanWord(translations[selectedWord.index] || textEn)
 
-    const success = await addWord(cleanWord, translation, songId, songTitle)
+    const success = await addWord(spanishWord, englishWord, songId, songTitle)
 
     if (success) {
-      setAdded((prev) => new Set([...prev, cleanWord]))
+      setAdded((prev) => new Set([...prev, spanishWord]))
     }
 
     setAdding(false)
@@ -56,8 +57,8 @@ export function WordSelector({ textEs, textEn, songId, songTitle, onLoginRequire
       {/* Words */}
       <p className='text-lg sm:text-xl md:text-3xl lg:text-4xl font-bold'>
         {words.map((word, index) => {
-          const cleanWord = word.replace(/[.,!?¿¡'"]/g, '')
-          const isAdded = added.has(cleanWord)
+          const cleaned = cleanWord(word)
+          const isAdded = added.has(cleaned)
 
           return (
             <span
@@ -92,8 +93,8 @@ export function WordSelector({ textEs, textEn, songId, songTitle, onLoginRequire
               onClick={(e) => e.stopPropagation()}
             >
               <div className='text-center mb-5'>
-                <p className='text-2xl font-bold text-white mb-1'>{selectedWord.word}</p>
-                <p className='text-gray-400'>{translations[selectedWord.index] || textEn}</p>
+                <p className='text-2xl font-bold text-white mb-1'>{cleanWord(selectedWord.word)}</p>
+                <p className='text-gray-400'>{cleanWord(translations[selectedWord.index] || textEn)}</p>
               </div>
               <div className='flex gap-3 justify-center'>
                 <button

@@ -7,6 +7,7 @@ import type {
   FillBlankExercise,
   TranslationMatchExercise 
 } from '@/types/exercises'
+import { cleanWord } from './textUtils'
 
 // Fisher-Yates shuffle
 function shuffle<T>(array: T[]): T[] {
@@ -21,11 +22,6 @@ function shuffle<T>(array: T[]): T[] {
 // Generate a unique ID
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9)
-}
-
-// Clean text for word splitting (remove punctuation at edges)
-function cleanWord(word: string): string {
-  return word.replace(/^[¿¡"'«]+|[?!.,;:"'»]+$/g, '').trim()
 }
 
 // Split sentence into words, keeping meaningful tokens

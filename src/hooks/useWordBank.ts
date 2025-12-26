@@ -11,6 +11,7 @@ import {
   type WordBankItem,
   type AddWordParams 
 } from '@/services/userDataService'
+import { cleanWord } from '@/utils/textUtils'
 
 export function useWordBank() {
   const { user } = useAuth()
@@ -20,6 +21,8 @@ export function useWordBank() {
 
   // Fetch all words
   const fetchWords = useCallback(async () => {
+    await Promise.resolve() // Ensure async execution
+
     if (!user) {
       setWords([])
       setLoading(false)
@@ -59,8 +62,8 @@ export function useWordBank() {
 
     const params: AddWordParams = {
       userId: user.id,
-      wordEs,
-      wordEn,
+      wordEs: cleanWord(wordEs),
+      wordEn: cleanWord(wordEn),
       songId,
       songTitle,
     }

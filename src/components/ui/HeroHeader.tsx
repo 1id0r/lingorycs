@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Search, Library, Music, Loader2 } from 'lucide-react'
 import { UserMenu } from '@/components/UserMenu'
+import { Button } from './neon-button'
 import clsx from 'clsx'
 
 interface HeroHeaderProps {
@@ -59,8 +60,8 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
         <div className='container mx-auto px-6 h-16 flex items-center justify-between gap-6'>
           {/* Logo */}
           <div className='flex items-center gap-3 shrink-0'>
-            <div className='p-2 bg-gradient-to-br from-purple-600 via-purple-500 to-teal-400 rounded-xl shadow-lg shadow-purple-500/25'>
-              <Music size={20} className='text-white' />
+            <div className='p-2 bg-blue-500/10 border border-blue-500/20 rounded-xl shadow-lg'>
+              <Music size={20} className='text-blue-400' />
             </div>
           </div>
 
@@ -90,7 +91,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
   return (
     <div className='min-h-screen relative overflow-hidden'>
       {/* Background gradient */}
-      <div className='absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-teal-900/20' />
+      <div className='absolute inset-0 bg-neutral-900' />
       <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-600/10 via-transparent to-transparent' />
 
       {/* Header */}
@@ -98,12 +99,10 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
         <div className='container mx-auto flex justify-between items-center'>
           {/* Logo */}
           <div className='flex items-center gap-3'>
-            <div className='p-2.5 bg-gradient-to-br from-purple-600 via-purple-500 to-teal-400 rounded-xl shadow-lg shadow-purple-500/25'>
-              <Music size={28} className='text-white' />
+            <div className='p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl shadow-lg'>
+              <Music size={28} className='text-blue-400' />
             </div>
-            <span className='text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400'>
-              Espalingo
-            </span>
+            <span className='text-2xl font-bold text-white'>Espalingo</span>
           </div>
 
           {/* Nav Links (Desktop) */}
@@ -137,7 +136,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className='h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-teal-400 ring-2 ring-black flex items-center justify-center text-[10px] font-bold'
+                className='h-6 w-6 rounded-full bg-blue-500/20 ring-2 ring-black flex items-center justify-center text-[10px] font-bold text-blue-400'
               >
                 {String.fromCharCode(64 + i)}
               </div>
@@ -148,13 +147,9 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
 
         {/* Title */}
         <h1 className='text-5xl md:text-7xl font-bold text-center leading-tight mb-4'>
-          <span className='bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-teal-200'>
-            Learn Spanish
-          </span>
+          <span className='text-white'>Learn Spanish</span>
           <br />
-          <span className='bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-teal-400'>
-            Through Music
-          </span>
+          <span className='text-blue-400'>Through Music</span>
         </h1>
 
         {/* Subtitle */}
@@ -164,12 +159,11 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
 
         {/* Search Form */}
         <form onSubmit={handleSubmit} className='w-full max-w-xl'>
-          <div className='relative group'>
-            <div className='absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-teal-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300' />
+          <div className='relative group w-full'>
             <div className='relative flex'>
               <div className='relative flex-1'>
                 <Search
-                  className='absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-400 transition-colors'
+                  className='absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-400 transition-colors'
                   size={20}
                 />
                 <input
@@ -178,16 +172,17 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder='Search for a song or artist...'
-                  className='w-full bg-black/80 backdrop-blur-sm border border-white/10 rounded-l-2xl px-6 py-4 pl-14 focus:outline-none focus:border-purple-500/50 transition-all placeholder:text-gray-500 text-lg'
+                  className='w-full bg-black/80 backdrop-blur-sm border border-white/10 rounded-l-2xl px-6 py-4 pl-14 focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-gray-500 text-lg'
                 />
               </div>
-              <button
+              <Button
                 type='submit'
+                variant='solid'
                 disabled={isLoading}
-                className='bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-500 hover:to-teal-400 px-8 py-4 rounded-r-2xl font-bold text-lg transition-all disabled:opacity-50 flex items-center gap-2 shrink-0'
+                className='px-8 py-4 rounded-r-2xl h-auto rounded-l-none'
               >
                 {isLoading ? <Loader2 className='animate-spin' size={20} /> : 'Search'}
-              </button>
+              </Button>
             </div>
           </div>
           <p className='text-center text-gray-500 text-sm mt-3'>
@@ -195,20 +190,6 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
           </p>
         </form>
       </main>
-
-      {/* Footer hint */}
-      <footer className='absolute bottom-0 inset-x-0 p-6 z-10'>
-        <div className='container mx-auto flex justify-center'>
-          <div className='flex items-center gap-2 text-sm text-gray-500'>
-            <span>Powered by</span>
-            <span className='font-medium text-gray-400'>LrcLib</span>
-            <span>•</span>
-            <span className='font-medium text-gray-400'>DeepL</span>
-            <span>•</span>
-            <span className='font-medium text-gray-400'>YouTube</span>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

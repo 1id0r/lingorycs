@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 md:pb-0`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased pb-24 md:pb-0`}>
         <AuthProvider>
           <DesktopNav />
           {children}

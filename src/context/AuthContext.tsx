@@ -70,7 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     const supabase = getSupabase()
-    await supabase.auth.signOut()
+    // Use 'local' scope to sign out without server call (avoids 403 errors)
+    await supabase.auth.signOut({ scope: 'local' })
   }
 
   return (

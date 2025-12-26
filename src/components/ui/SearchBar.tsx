@@ -86,13 +86,13 @@ const SearchBar = ({
         <motion.div
           className={cn(
             'flex items-center w-full rounded-2xl border relative overflow-hidden backdrop-blur-md',
-            isFocused ? 'border-purple-500/50 shadow-xl shadow-purple-500/10' : 'border-white/10 bg-black/60'
+            isFocused ? 'border-blue-500/50 shadow-xl shadow-blue-500/10' : 'border-white/10 bg-black/60'
           )}
         >
           {/* Gradient background when focused */}
           {isFocused && (
             <motion.div
-              className='absolute inset-0 -z-10 bg-gradient-to-r from-purple-600/10 to-teal-500/10'
+              className='absolute inset-0 -z-10 bg-blue-500/5'
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -120,7 +120,7 @@ const SearchBar = ({
                       repeat: Infinity,
                       repeatType: 'reverse',
                     }}
-                    className='absolute w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-teal-400'
+                    className='absolute w-2 h-2 rounded-full bg-blue-400'
                     style={{
                       left: `${p.left}%`,
                       top: `${p.top}%`,
@@ -144,7 +144,7 @@ const SearchBar = ({
               strokeWidth={isFocused ? 2.5 : 2}
               className={cn(
                 'transition-all duration-300',
-                isAnimating ? 'text-purple-500' : isFocused ? 'text-purple-400' : 'text-gray-400'
+                isAnimating ? 'text-blue-500' : isFocused ? 'text-blue-400' : 'text-gray-400'
               )}
             />
           </motion.div>
@@ -182,7 +182,7 @@ const SearchBar = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 disabled={isLoading}
-                className='px-4 md:px-5 py-2 mr-2 text-xs md:text-sm font-medium rounded-xl bg-gradient-to-r from-purple-600 to-teal-500 text-white transition-all shadow-lg disabled:opacity-50'
+                className='px-4 md:px-5 py-2 mr-2 text-xs md:text-sm font-medium rounded-xl bg-blue-500 text-white transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50'
               >
                 {isLoading ? <Loader2 className='w-4 h-4 animate-spin' /> : 'Search'}
               </motion.button>
@@ -257,9 +257,7 @@ const SearchBar = ({
                       </div>
                     </div>
                     {track.syncedLyrics && (
-                      <span className='text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full'>
-                        Synced
-                      </span>
+                      <span className='text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full'>Synced</span>
                     )}
                   </motion.div>
                 ))}

@@ -4,10 +4,13 @@ import React, { useState, useRef, useEffect } from 'react'
 import ReactPlayer from 'react-player'
 import { useAudioSync } from '../hooks/useAudioSync'
 import type { Song } from '../types'
-import { GraduationCap } from 'lucide-react'
+import { GraduationCap, Loader2 } from 'lucide-react'
 import clsx from 'clsx'
 import { LikeButton } from './LikeButton'
 import { WordSelector } from './WordSelector'
+import { Button } from './ui/neon-button'
+import { LanguageSelector } from './LanguageSelector'
+import { translateSongLyrics } from '../services/songService'
 
 // Define the ReactPlayer instance type for ref access
 interface ReactPlayerInstance {
@@ -24,12 +27,22 @@ interface PlayerProps {
   onLoginRequired?: () => void
 }
 
-export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRequired }) => {
+export const Player: React.FC<PlayerProps> = ({ song: initialSong, onStartPractice, onLoginRequired }) => {
+  const [song, setSong] = useState<Song>(initialSong)
   const [playing] = useState(true) // Auto-start
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [currentLang, setCurrentLang] = useState('EN')
+  const [isTranslating, setIsTranslating] = useState(false)
+
   const playerRef = useRef<ReactPlayerInstance | null>(null)
   const lyricsContainerRef = useRef<HTMLDivElement>(null)
+
+  // Reset song state when prop changes
+  useEffect(() => {
+    setSong(initialSong)
+    // We ideally should detect the language of the loaded song if stored, but default to EN for now or keep persistent state
+  }, [initialSong])
 
   const activeLineIndex = useAudioSync(currentTime, song.lyrics)
 
@@ -39,6 +52,21 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRe
 
   const handleDurationChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     setDuration(e.currentTarget.duration)
+  }
+
+  const handleLanguageChange = async (langCode: string) => {
+    if (langCode === currentLang) return
+
+    setIsTranslating(true)
+    try {
+      const updatedSong = await translateSongLyrics(song, langCode)
+      setSong(updatedSong)
+      setCurrentLang(langCode)
+    } catch (error) {
+      console.error('Failed to change language:', error)
+    } finally {
+      setIsTranslating(false)
+    }
   }
 
   // Auto-scroll to active line
@@ -67,14 +95,22 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRe
         </div>
 
         <div className='flex items-center gap-2 md:gap-4'>
+          <LanguageSelector
+            currentLanguage={currentLang}
+            onLanguageChange={handleLanguageChange}
+            disabled={isTranslating}
+          />
+
           {onStartPractice && (
-            <button
+            <Button
               onClick={onStartPractice}
-              className='flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold text-xs md:text-sm hover:from-purple-500 hover:to-teal-400 transition-all active:scale-95'
+              variant='solid'
+              size='sm'
+              className='flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full font-bold transition-all active:scale-95'
             >
               <GraduationCap size={16} className='md:w-[18px] md:h-[18px]' />
               <span className='hidden sm:inline'>Practice</span>
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -102,9 +138,16 @@ export const Player: React.FC<PlayerProps> = ({ song, onStartPractice, onLoginRe
       {/* Lyrics Display */}
       <div
         ref={lyricsContainerRef}
-        className='flex-1 overflow-y-auto overflow-x-visible px-6 py-12 space-y-8 text-center scroll-smooth'
+        className='flex-1 overflow-y-auto overflow-x-visible px-6 py-12 space-y-8 text-center scroll-smooth relative'
         style={{ scrollBehavior: 'smooth' }}
       >
+        {isTranslating && (
+          <div className='absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-teal-400'>
+            <Loader2 size={48} className='animate-spin mb-4' />
+            <p className='font-bold text-xl animate-pulse'>Translating...</p>
+          </div>
+        )}
+
         {song.lyrics.map((line, index) => {
           const isActive = index === activeLineIndex
           return (

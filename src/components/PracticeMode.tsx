@@ -7,6 +7,7 @@ import { createPracticeSession } from '@/utils/exerciseGenerator'
 import { WordBank } from './exercises/WordBank'
 import { FillBlank } from './exercises/FillBlank'
 import { Heart, Star, Flame, X, Trophy, RotateCcw } from 'lucide-react'
+import { Button } from './ui/neon-button'
 import clsx from 'clsx'
 
 interface PracticeModeProps {
@@ -15,13 +16,10 @@ interface PracticeModeProps {
 }
 
 export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
-  const [session, setSession] = useState<PracticeSession | null>(null)
-  const [summary, setSummary] = useState<SessionSummary | null>(null)
-
-  // Initialize session on mount
-  useEffect(() => {
+  // Initialize session - compute initial session
+  const [session, setSession] = useState<PracticeSession>(() => {
     const { exercises } = createPracticeSession(song.id, song.lyrics, 10)
-    setSession({
+    return {
       songId: song.id,
       exercises,
       currentIndex: 0,
@@ -30,16 +28,27 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
       xp: 0,
       streak: 0,
       startedAt: Date.now(),
-    })
-  }, [song])
+    }
+  })
+  const [summary, setSummary] = useState<SessionSummary | null>(null)
 
-  if (!session) {
-    return (
-      <div className='flex items-center justify-center h-screen bg-neutral-900'>
-        <div className='animate-pulse text-white'>Loading exercises...</div>
-      </div>
-    )
-  }
+  // Reset session when song changes
+  useEffect(() => {
+    if (song.id !== session.songId) {
+      const { exercises } = createPracticeSession(song.id, song.lyrics, 10)
+      setSession({
+        songId: song.id,
+        exercises,
+        currentIndex: 0,
+        results: [],
+        hearts: 3,
+        xp: 0,
+        streak: 0,
+        startedAt: Date.now(),
+      })
+      setSummary(null)
+    }
+  }, [song.id, song.lyrics, session.songId])
 
   // Check if session is complete
   if (summary) {
@@ -49,11 +58,11 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
           {/* Trophy or Broken Heart */}
           <div className='mb-8'>
             {summary.passed ? (
-              <div className='w-24 h-24 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center animate-bounce'>
-                <Trophy size={48} className='text-white' />
+              <div className='w-24 h-24 mx-auto bg-blue-500/10 border border-blue-500/20 rounded-full flex items-center justify-center animate-bounce shadow-lg shadow-blue-500/20'>
+                <Trophy size={48} className='text-blue-400' />
               </div>
             ) : (
-              <div className='w-24 h-24 mx-auto bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center'>
+              <div className='w-24 h-24 mx-auto bg-gray-700/50 border border-white/10 rounded-full flex items-center justify-center'>
                 <Heart size={48} className='text-red-400' />
               </div>
             )}
@@ -86,9 +95,8 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
 
           {/* Actions */}
           <div className='flex gap-4'>
-            <button
+            <Button
               onClick={() => {
-                setSummary(null)
                 const { exercises } = createPracticeSession(song.id, song.lyrics, 10)
                 setSession({
                   songId: song.id,
@@ -100,12 +108,14 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
                   streak: 0,
                   startedAt: Date.now(),
                 })
+                setSummary(null)
               }}
-              className='flex-1 py-4 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 text-white flex items-center justify-center gap-2 hover:from-purple-500 hover:to-purple-600 transition-all'
+              variant='solid'
+              className='flex-1 py-4 h-auto flex items-center justify-center gap-2 transition-all'
             >
               <RotateCcw size={20} />
               Try Again
-            </button>
+            </Button>
             <button
               onClick={onExit}
               className='flex-1 py-4 rounded-xl font-bold bg-white/10 text-white hover:bg-white/20 transition-all'
@@ -175,7 +185,7 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
   }
 
   return (
-    <div className='flex flex-col h-screen bg-neutral-900 text-white'>
+    <div className='flex flex-col h-[100dvh] bg-neutral-900 text-white overflow-hidden'>
       {/* Header */}
       <div className='shrink-0 p-4 border-b border-white/10 bg-black/50'>
         <div className='flex items-center justify-between max-w-2xl mx-auto'>
@@ -187,10 +197,7 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
           {/* Progress Bar */}
           <div className='flex-1 mx-4'>
             <div className='h-3 bg-white/10 rounded-full overflow-hidden'>
-              <div
-                className='h-full bg-gradient-to-r from-teal-500 to-green-500 transition-all duration-500'
-                style={{ width: `${progress}%` }}
-              />
+              <div className='h-full bg-blue-500 transition-all duration-500' style={{ width: `${progress}%` }} />
             </div>
           </div>
 

@@ -82,9 +82,9 @@ export async function isSongLiked(userId: string, songId: string): Promise<boole
     .select('id')
     .eq('user_id', userId)
     .eq('song_id', songId)
-    .single()
+    .maybeSingle()
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     console.error('Error checking if song is liked:', error)
   }
   return !!data

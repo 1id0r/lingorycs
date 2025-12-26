@@ -13,6 +13,7 @@ import { getPlaySong, clearPlaySong } from '@/utils/playSong'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthModal } from '@/components/AuthModal'
 import { SearchBar } from '@/components/ui/SearchBar'
+import { Loader } from '@/components/ui/loader'
 
 export default function Home() {
   const [query, setQuery] = useState('')
@@ -161,14 +162,7 @@ export default function Home() {
 
   // Loading screen when loading song from Explore/Library
   if (loading) {
-    return (
-      <div className='min-h-screen bg-black text-white flex flex-col items-center justify-center'>
-        <div className='flex flex-col items-center gap-4'>
-          <div className='w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin' />
-          <p className='text-gray-400 text-sm'>Loading lyrics...</p>
-        </div>
-      </div>
-    )
+    return <Loader text='Loading' size={100} />
   }
 
   // Full Hero Landing Page
@@ -189,9 +183,7 @@ export default function Home() {
           {/* Logo */}
           <div className='flex items-center gap-3'>
             <img src='/logo.svg' alt='Espalingo' className='h-12 w-12 rounded-xl' />
-            <span className='text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400'>
-              Espalingo
-            </span>
+            <span className='text-2xl font-bold text-white'>Espalingo</span>
           </div>
 
           {/* Nav Links (Desktop) */}
@@ -232,7 +224,7 @@ export default function Home() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className='h-5 w-5 md:h-6 md:w-6 rounded-full bg-gradient-to-br from-purple-400 to-teal-400 ring-2 ring-black flex items-center justify-center text-[8px] md:text-[10px] font-bold'
+                className='h-5 w-5 md:h-6 md:w-6 rounded-full bg-blue-500/20 ring-2 ring-black flex items-center justify-center text-[8px] md:text-[10px] font-bold text-blue-400'
               >
                 {String.fromCharCode(64 + i)}
               </div>
@@ -243,13 +235,9 @@ export default function Home() {
 
         {/* Title */}
         <h1 className='text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-center leading-tight mb-3 md:mb-4'>
-          <span className='bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-teal-200'>
-            Learn Spanish
-          </span>
+          <span className='text-white'>Learn Spanish</span>
           <br />
-          <span className='bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-teal-400'>
-            Through Music
-          </span>
+          <span className='text-blue-400'>Through Music</span>
         </h1>
 
         {/* Subtitle */}
@@ -278,18 +266,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className='absolute bottom-0 inset-x-0 p-6 z-10'>
-        <div className='container mx-auto flex justify-center'>
-          <div className='flex items-center gap-2 text-sm text-gray-500'>
-            <span>Powered by</span>
-            <span className='font-medium text-gray-400'>LrcLib</span>
-            <span>•</span>
-            <span className='font-medium text-gray-400'>DeepL</span>
-            <span>•</span>
-            <span className='font-medium text-gray-400'>YouTube</span>
-          </div>
-        </div>
-      </footer>
+      <footer className='absolute bottom-0 inset-x-0 p-6 z-10'></footer>
 
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>

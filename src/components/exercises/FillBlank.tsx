@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import type { FillBlankExercise } from '@/types/exercises'
+import { Button } from '../ui/neon-button'
 import clsx from 'clsx'
 
 interface FillBlankProps {
@@ -35,11 +36,11 @@ export const FillBlank: React.FC<FillBlankProps> = ({ exercise, onComplete }) =>
   const renderSentence = () => {
     const parts = exercise.sentenceWithBlanks.split('_____')
     return (
-      <p className='text-2xl md:text-3xl font-bold text-center leading-relaxed'>
+      <p className='text-xl md:text-3xl font-bold text-center leading-relaxed px-2'>
         {parts[0]}
         <span
           className={clsx(
-            'inline-block min-w-[100px] mx-2 px-4 py-1 rounded-lg border-b-4 transition-all',
+            'inline-block min-w-[80px] md:min-w-[100px] mx-1 md:mx-2 px-2 md:px-4 py-1 rounded-lg border-b-4 transition-all',
             selectedOption
               ? feedback === 'correct'
                 ? 'bg-green-500/30 border-green-500 text-green-200'
@@ -59,9 +60,9 @@ export const FillBlank: React.FC<FillBlankProps> = ({ exercise, onComplete }) =>
   return (
     <div className='flex flex-col h-full'>
       {/* Instructions */}
-      <div className='text-center mb-6'>
-        <p className='text-gray-400 text-sm mb-2'>Complete the sentence:</p>
-        <p className='text-teal-300 text-lg font-medium'>{exercise.text_en}</p>
+      <div className='text-center mb-4 md:mb-6 shrink-0'>
+        <p className='text-gray-400 text-xs md:text-sm mb-1'>Complete the sentence:</p>
+        <p className='text-teal-300 text-base md:text-lg font-medium'>{exercise.text_en}</p>
       </div>
 
       {/* Sentence with Blank */}
@@ -77,22 +78,19 @@ export const FillBlank: React.FC<FillBlankProps> = ({ exercise, onComplete }) =>
       </div>
 
       {/* Options */}
-      <div className='grid grid-cols-2 gap-3 mb-8'>
+      <div className='grid grid-cols-2 gap-2 md:gap-3 mb-4 md:mb-8'>
         {exercise.options.map((option, index) => (
-          <button
+          <Button
             key={index}
             onClick={() => handleOptionSelect(option)}
             disabled={isChecking}
+            neon={selectedOption === option}
+            variant={selectedOption === option ? 'solid' : 'ghost'}
             className={clsx(
-              'py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200',
+              'py-3 md:py-4 px-4 md:px-6 h-auto font-bold text-base md:text-lg transition-all duration-200',
               'border-2 touch-manipulation',
-              selectedOption === option
-                ? feedback === 'correct'
-                  ? 'bg-green-500 border-green-400 text-white'
-                  : feedback === 'incorrect'
-                  ? 'bg-red-500 border-red-400 text-white'
-                  : 'bg-purple-600 border-purple-400 text-white scale-105'
-                : 'bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30',
+              selectedOption === option && feedback === 'correct' && 'bg-green-500 border-green-400',
+              selectedOption === option && feedback === 'incorrect' && 'bg-red-500 border-red-400',
               isChecking && 'pointer-events-none',
               // Highlight correct answer after incorrect guess
               feedback === 'incorrect' &&
@@ -101,23 +99,22 @@ export const FillBlank: React.FC<FillBlankProps> = ({ exercise, onComplete }) =>
             )}
           >
             {option}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Check Button */}
-      <button
+      <Button
         onClick={checkAnswer}
         disabled={!selectedOption || isChecking}
+        variant='solid'
         className={clsx(
-          'w-full py-4 rounded-xl font-bold text-lg transition-all',
-          selectedOption && !isChecking
-            ? 'bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-lg shadow-teal-500/30 hover:from-teal-400 hover:to-green-400 active:scale-98'
-            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+          'w-full py-3 md:py-4 h-auto font-bold text-base md:text-lg transition-all shrink-0',
+          (!selectedOption || isChecking) && 'opacity-50 cursor-not-allowed'
         )}
       >
         {isChecking ? (feedback === 'correct' ? '✓ Perfect!' : '✗ Not quite') : 'Check'}
-      </button>
+      </Button>
     </div>
   )
 }

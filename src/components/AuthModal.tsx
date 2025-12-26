@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { X, Mail, Loader2 } from 'lucide-react'
+import { Button } from './ui/neon-button'
 import clsx from 'clsx'
 
 interface AuthModalProps {
@@ -64,10 +65,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Google Sign In */}
-        <button
+        <Button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className='w-full flex items-center justify-center gap-3 py-3 px-4 bg-white text-black font-medium rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50'
+          variant='default'
+          className='w-full flex items-center justify-center gap-3 py-3 px-4 bg-white text-black font-medium transition-colors disabled:opacity-50'
         >
           <svg className='w-5 h-5' viewBox='0 0 24 24'>
             <path
@@ -88,7 +90,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             />
           </svg>
           Continue with Google
-        </button>
+        </Button>
 
         {/* Divider */}
         <div className='flex items-center gap-4 my-6'>
@@ -138,14 +140,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          <button
+          <Button
             type='submit'
             disabled={loading}
-            className='w-full py-3 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 text-white hover:from-purple-500 hover:to-teal-400 transition-all disabled:opacity-50 flex items-center justify-center gap-2'
+            variant='solid'
+            className='w-full py-3 h-auto font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2'
           >
             {loading && <Loader2 size={18} className='animate-spin' />}
             {mode === 'login' ? 'Sign In' : 'Create Account'}
-          </button>
+          </Button>
         </form>
 
         {/* Toggle Mode */}

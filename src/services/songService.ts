@@ -28,7 +28,7 @@ async function getCachedSong(trackId: string): Promise<Song | null> {
 
     const row = data as CachedSongRow;
     return {
-      id: row.id,
+      id: row.youtube_id, // Always use youtube_id as the song ID for consistency
       title: row.title,
       artist: row.artist,
       youtubeId: row.youtube_id,
@@ -102,7 +102,7 @@ export const processTrackToSong = async (track: LrcLibTrack): Promise<Song> => {
   }));
 
   const song: Song = {
-    id: trackId,
+    id: youtubeId, // Use youtubeId as the primary identifier
     title: track.name,
     artist: track.artistName,
     youtubeId: youtubeId,
@@ -128,54 +128,120 @@ export const searchAndBuildSong = async (query: string): Promise<Song | null> =>
   return await processTrackToSong(track);
 };
 
-// Build song from YouTube ID directly (for playing from library)
+// Build song from YouTube ID directly (for playing from library/explore)
 export const buildSongFromYouTube = async (
   youtubeId: string,
   title: string,
   artist: string
 ): Promise<Song | null> => {
   try {
+    console.log(`[buildSongFromYouTube] Building song: ${artist} - ${title}`);
+    
     // Search for synced lyrics using title + artist
     const query = `${artist} ${title}`;
     const tracks = await LrcLib.searchTrack(query);
-    const track = tracks.find((t) => t.syncedLyrics) || tracks[0];
+    
+    console.log(`[buildSongFromYouTube] Found ${tracks?.length || 0} tracks from LrcLib`);
+    
+    // Find track with synced lyrics preferably
+    const syncedTrack = tracks?.find((t) => t.syncedLyrics);
+    const anyTrack = tracks?.[0];
+    const track = syncedTrack || anyTrack;
+    
+    // If we found a cached version by youtube_id, return it
+    const supabase = getSupabase();
+    const { data: cachedRow } = await supabase
+      .from('songs_cache')
+      .select('*')
+      .eq('youtube_id', youtubeId)
+      .single();
 
-    if (!track || !track.syncedLyrics) {
-      console.warn('No synced lyrics found for library song');
-      return null;
+    if (cachedRow) {
+      console.log(`[Supabase Cache] Hit for song`);
+      return {
+        id: cachedRow.youtube_id, // Always use youtube_id as the song ID for consistency
+        title: cachedRow.title,
+        artist: cachedRow.artist,
+        youtubeId: cachedRow.youtube_id,
+        lyrics: cachedRow.lyrics,
+      };
     }
 
-    // Check cache first
-    const cached = await getCachedSong(String(track.id));
-    if (cached) {
-      console.log(`[Supabase Cache] Hit for library song`);
-      return { ...cached, youtubeId }; // Use the provided YouTube ID
+    // If we have synced lyrics, parse and translate them
+    if (track?.syncedLyrics) {
+      console.log(`[buildSongFromYouTube] Found synced lyrics, translating...`);
+      const parsedLyrics = LrcLib.parseLrc(track.syncedLyrics);
+      const originalTexts = parsedLyrics.map((l) => l.text_es);
+      const translatedTexts = await DeepL.translateLyrics(originalTexts);
+
+      const lyrics = parsedLyrics.map((line, index) => ({
+        ...line,
+        text_en: translatedTexts[index] || '',
+      }));
+
+      const song: Song = {
+        id: youtubeId,
+        title,
+        artist,
+        youtubeId,
+        lyrics,
+      };
+
+      saveSongToCache(song);
+      return song;
     }
 
-    // Parse and translate
-    const parsedLyrics = LrcLib.parseLrc(track.syncedLyrics);
-    const originalTexts = parsedLyrics.map((l) => l.text_es);
-    const translatedTexts = await DeepL.translateLyrics(originalTexts);
-
-    const lyrics = parsedLyrics.map((line, index) => ({
-      ...line,
-      text_en: translatedTexts[index] || '',
-    }));
-
+    // Fallback: Return song with empty lyrics so video can still play
+    console.warn(`[buildSongFromYouTube] No synced lyrics found, returning song without lyrics`);
     const song: Song = {
-      id: String(track.id),
+      id: youtubeId, // Use YouTube ID as the song ID
       title,
       artist,
       youtubeId,
-      lyrics,
+      lyrics: [], // Empty lyrics - video will still play
     };
-
-    // Save to cache
-    saveSongToCache(song);
 
     return song;
   } catch (err) {
-    console.error('Error building song from YouTube ID:', err);
-    return null;
+    console.error('[buildSongFromYouTube] Error:', err);
+    
+    return {
+      id: youtubeId,
+      title,
+      artist,
+      youtubeId,
+      lyrics: [],
+    };
   }
+};
+
+// Re-translate an existing song to a new target language
+export const translateSongLyrics = async (song: Song, targetLang: string): Promise<Song> => {
+  // If no lyrics, nothing to translate
+  if (!song.lyrics || song.lyrics.length === 0) return song;
+
+  console.log(`[translateSongLyrics] Translating song "${song.title}" to ${targetLang}...`);
+
+  // Extract original texts (assuming text_es is the source/original)
+  const originalTexts = song.lyrics.map((l) => l.text_es);
+  
+  // Translate
+  const translatedTexts = await DeepL.translateLyrics(originalTexts, targetLang);
+
+  // Update lyrics
+  const newLyrics = song.lyrics.map((line, index) => ({
+    ...line,
+    text_en: translatedTexts[index] || '', // Overwriting text_en with new translation
+  }));
+
+  const updatedSong: Song = {
+    ...song,
+    lyrics: newLyrics,
+  };
+
+  // Update cache (WARNING: This overwrites the cached version with the new language)
+  // This effectively changes the "default" language for this song in the DB.
+  saveSongToCache(updatedSong);
+
+  return updatedSong;
 };

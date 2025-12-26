@@ -18,6 +18,8 @@ export function useLikedSongs() {
 
   // Fetch all liked songs
   const fetchLikedSongs = useCallback(async () => {
+    await Promise.resolve() // Ensure async execution to avoid sync setState in effect
+
     if (!user) {
       setLikedSongs([])
       setLoading(false)

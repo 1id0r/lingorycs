@@ -11,7 +11,7 @@ export default function AuthCodeError() {
         </p>
         <Link
           href='/'
-          className='inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-teal-500 rounded-full font-bold text-white hover:from-purple-500 hover:to-teal-400 transition-all'
+          className='inline-block px-6 py-3 bg-blue-500 rounded-full font-bold text-white hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/25'
         >
           Go Home & Try Again
         </Link>
