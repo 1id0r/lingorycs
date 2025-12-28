@@ -14,6 +14,7 @@ import { UserMenu } from '@/components/UserMenu'
 import { AuthModal } from '@/components/AuthModal'
 import { SearchBar } from '@/components/ui/SearchBar'
 import { PlayerSkeleton } from '@/components/skeletons/PlayerSkeleton'
+import { TypewriterText } from '@/components/ui/TypewriterText'
 
 export default function Home() {
   const [query, setQuery] = useState('')
@@ -241,12 +242,27 @@ export default function Home() {
         <h1 className='text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-center leading-tight mb-3 md:mb-4'>
           <span className='text-white'>Learn Spanish</span>
           <br />
-          <span className='text-blue-400'>Through Music</span>
+          <span className='bg-gradient-to-r from-orange-400 via-pink-500 to-purple-500 bg-clip-text text-transparent'>
+            Through Music
+          </span>
         </h1>
 
-        {/* Subtitle */}
-        <p className='text-xs sm:text-sm md:text-base lg:text-lg text-gray-400 text-center max-w-xl mb-6 md:mb-10 px-4'>
-          Sing along with synced lyrics, learn vocabulary, and practice with interactive exercises
+        {/* Subtitle with Typewriter Effect */}
+        <p className='text-xs sm:text-sm md:text-base lg:text-lg text-gray-400 text-center max-w-xl mb-6 md:mb-10 px-4 h-12 md:h-14 flex items-center justify-center'>
+          <TypewriterText
+            phrases={[
+              'Ever wondered what Romeo Santos is really singing about?',
+              "Want to understand Bad Bunny's latest hit?",
+              'Curious what Shakira means when she sings?',
+              "Ready to decode Daddy Yankee's lyrics?",
+              'Want to know what J Balvin is saying?',
+              'Finally understand the bachata you dance to!',
+              'Learn the meaning behind your favorite reggaeton!',
+            ]}
+            typingSpeed={40}
+            deletingSpeed={25}
+            pauseTime={2500}
+          />
         </p>
 
         {/* Search Bar */}
