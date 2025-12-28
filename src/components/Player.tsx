@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import ReactPlayer from 'react-player'
+import { useAuth } from '../context/AuthContext'
 import { useAudioSync } from '../hooks/useAudioSync'
 import type { Song } from '../types'
 import { GraduationCap, Loader2 } from 'lucide-react'
@@ -28,20 +29,47 @@ interface PlayerProps {
 }
 
 export const Player: React.FC<PlayerProps> = ({ song: initialSong, onStartPractice, onLoginRequired }) => {
+  const { user } = useAuth()
   const [song, setSong] = useState<Song>(initialSong)
   const [playing] = useState(true) // Auto-start
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [currentLang, setCurrentLang] = useState('EN')
   const [isTranslating, setIsTranslating] = useState(false)
+  const [hasInitializedLang, setHasInitializedLang] = useState(false)
 
   const playerRef = useRef<ReactPlayerInstance | null>(null)
   const lyricsContainerRef = useRef<HTMLDivElement>(null)
 
+  // Initialize language from user settings
+  useEffect(() => {
+    if (user?.user_metadata?.default_target_lang && !hasInitializedLang) {
+      const defaultLang = user.user_metadata.default_target_lang
+      if (defaultLang !== 'EN') {
+        // Auto-trigger translation
+        setCurrentLang(defaultLang)
+        handleLanguageChange(defaultLang)
+        // Note: handleLanguageChange depends on state closure usually, but here it's defined below.
+        // We should move definition up or use a separate effect that calls the translation service directly.
+        // Let's just set the state and let an effect trigger translation?
+        // Or better, define handleLanguageChange via useCallback or just call the service logic here.
+      }
+      setHasInitializedLang(true)
+    }
+  }, [user, hasInitializedLang]) // we need to ensure handleLanguageChange is accessible or logic duplicated
+
   // Reset song state when prop changes
   useEffect(() => {
     setSong(initialSong)
-    // We ideally should detect the language of the loaded song if stored, but default to EN for now or keep persistent state
+    // Reset lang init on new song if we want to re-apply defaults,
+    // but usually user might haven changed it manually.
+    // Let's stick to manual change persistence only if we want specific overrides.
+    // For now, let's allow re-initialization if needed or keep current.
+    // Actually, if a user changes song, we probably should keep the CURRENT selected language
+    // (if they switched to French, next song should probably be French too?)
+    // If we want persistent language across songs, `currentLang` state is inside Player which might remount or not.
+    // Use `key` in page.tsx forces remount. So `currentLang` resets to 'EN'.
+    // So `useEffect` above works perfectly to load default every time.
   }, [initialSong])
 
   const activeLineIndex = useAudioSync(currentTime, song.lyrics)

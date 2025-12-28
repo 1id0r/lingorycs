@@ -13,7 +13,7 @@ import { getPlaySong, clearPlaySong } from '@/utils/playSong'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthModal } from '@/components/AuthModal'
 import { SearchBar } from '@/components/ui/SearchBar'
-import { Loader } from '@/components/ui/loader'
+import { PlayerSkeleton } from '@/components/skeletons/PlayerSkeleton'
 
 export default function Home() {
   const [query, setQuery] = useState('')
@@ -144,7 +144,7 @@ export default function Home() {
 
         {/* Player or Practice */}
         {practiceMode ? (
-          <PracticeMode song={currentSong} onExit={() => setPracticeMode(false)} />
+          <PracticeMode key={currentSong.id} song={currentSong} onExit={() => setPracticeMode(false)} />
         ) : (
           <div className='animate-in fade-in slide-in-from-bottom-10 duration-700'>
             <Player
@@ -162,7 +162,11 @@ export default function Home() {
 
   // Loading screen when loading song from Explore/Library
   if (loading) {
-    return <Loader text='Loading' size={100} />
+    return (
+      <div className='min-h-screen bg-black'>
+        <PlayerSkeleton />
+      </div>
+    )
   }
 
   // Full Hero Landing Page

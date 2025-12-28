@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import type { Song } from '@/types'
 import type { PracticeSession, SessionSummary } from '@/types/exercises'
 import { createPracticeSession } from '@/utils/exerciseGenerator'
+import { savePracticeSession } from '@/services/userDataService'
+import { useAuth } from '@/context/AuthContext'
 import { WordBank } from './exercises/WordBank'
 import { FillBlank } from './exercises/FillBlank'
 import { Heart, Star, Flame, X, Trophy, RotateCcw } from 'lucide-react'
@@ -16,6 +18,7 @@ interface PracticeModeProps {
 }
 
 export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
+  const { user } = useAuth()
   // Initialize session - compute initial session
   const [session, setSession] = useState<PracticeSession>(() => {
     const { exercises } = createPracticeSession(song.id, song.lyrics, 10)
@@ -32,23 +35,18 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
   })
   const [summary, setSummary] = useState<SessionSummary | null>(null)
 
-  // Reset session when song changes
+  // Save session when completion summary is shown
   useEffect(() => {
-    if (song.id !== session.songId) {
-      const { exercises } = createPracticeSession(song.id, song.lyrics, 10)
-      setSession({
-        songId: song.id,
-        exercises,
-        currentIndex: 0,
-        results: [],
-        hearts: 3,
-        xp: 0,
-        streak: 0,
-        startedAt: Date.now(),
+    if (summary && summary.passed && user) {
+      savePracticeSession({
+        user_id: user.id,
+        song_id: song.id,
+        song_title: song.title,
+        score: summary.xpEarned,
+        max_score: session.exercises.length * 10,
       })
-      setSummary(null)
     }
-  }, [song.id, song.lyrics, session.songId])
+  }, [summary, user, song.id, song.title, session.exercises.length])
 
   // Check if session is complete
   if (summary) {

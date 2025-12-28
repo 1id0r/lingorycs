@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import { User, LogOut, ChevronDown, Settings, Sparkles } from 'lucide-react'
+import { User, LogOut, ChevronDown, Settings, Sparkles, LayoutDashboard } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface UserMenuProps {
@@ -97,11 +97,25 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onLoginClick }) => {
               {/* Actions */}
               <div className='p-2'>
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    setIsOpen(false)
+                    window.location.href = '/settings'
+                  }}
                   className='w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-xl transition-colors'
                 >
                   <Settings size={16} />
                   Settings
+                </button>
+                <button
+                  onClick={() => {
+                    setIsOpen(false)
+                    // Use window.location to force full navigation if router doesn't work well inside framer motion sometimes context issues
+                    window.location.href = '/dashboard'
+                  }}
+                  className='w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-xl transition-colors'
+                >
+                  <LayoutDashboard size={16} />
+                  Dashboard
                 </button>
                 <button
                   onClick={async () => {

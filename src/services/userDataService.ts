@@ -234,3 +234,78 @@ export async function updateWordReview(
   }
   return true
 }
+// ===== PRACTICE HISTORY =====
+
+export interface PracticeSession {
+  id?: string
+  user_id: string
+  song_id: string
+  song_title: string
+  score: number
+  max_score: number
+  created_at?: string
+}
+
+export async function savePracticeSession(session: PracticeSession): Promise<boolean> {
+  const supabase = getSupabase()
+  const { error } = await supabase.from('practice_sessions').insert({
+    user_id: session.user_id,
+    song_id: session.song_id,
+    song_title: session.song_title,
+    score: session.score,
+    max_score: session.max_score,
+  })
+
+  if (error) {
+    console.error('Error saving practice session:', error)
+    return false
+  }
+  return true
+}
+
+export async function getPracticeHistory(userId: string, limit = 10): Promise<PracticeSession[]> {
+  const supabase = getSupabase()
+  const { data, error } = await supabase
+    .from('practice_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching practice history:', error)
+    return []
+  }
+  return data || []
+}
+
+export async function getUserStats(userId: string) {
+  const supabase = getSupabase()
+  
+  // Parallel fetch for stats
+  const [likedRes, wordsRes, practiceRes] = await Promise.all([
+    supabase.from('liked_songs').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('word_bank').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('practice_sessions').select('score', { count: 'exact' }).eq('user_id', userId)
+  ])
+
+  // Calculate total XP (sum of scores)
+  let totalXp = 0
+  
+  // To get total XP without RPC, we can fetch just the 'score' column
+  const { data: scores } = await supabase
+    .from('practice_sessions')
+    .select('score')
+    .eq('user_id', userId)
+  
+  if (scores) {
+    totalXp = scores.reduce((acc: number, curr: { score: number }) => acc + curr.score, 0)
+  }
+
+  return {
+    likedSongs: likedRes.count || 0,
+    wordsLearned: wordsRes.count || 0,
+    sessionsCompleted: practiceRes.count || 0,
+    totalXp
+  }
+}
