@@ -183,57 +183,57 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({ song, onExit }) => {
   }
 
   return (
-    <div className='flex flex-col h-[100dvh] bg-neutral-900 text-white overflow-hidden'>
-      {/* Header */}
-      <div className='shrink-0 p-4 border-b border-white/10 bg-black/50'>
-        <div className='flex items-center justify-between max-w-2xl mx-auto'>
+    <div className='flex flex-col h-[100dvh] bg-neutral-900 text-white overflow-hidden pb-20'>
+      {/* Header - Compact */}
+      <div className='shrink-0 px-3 py-2 md:p-4 border-b border-white/10 bg-black/50'>
+        <div className='flex items-center justify-between max-w-2xl mx-auto gap-2'>
           {/* Close Button */}
-          <button onClick={onExit} className='p-2 rounded-full hover:bg-white/10 transition-colors'>
-            <X size={24} />
+          <button onClick={onExit} className='p-1.5 md:p-2 rounded-full hover:bg-white/10 transition-colors shrink-0'>
+            <X size={20} className='md:w-6 md:h-6' />
           </button>
 
           {/* Progress Bar */}
-          <div className='flex-1 mx-4'>
-            <div className='h-3 bg-white/10 rounded-full overflow-hidden'>
+          <div className='flex-1 mx-2 md:mx-4'>
+            <div className='h-2 md:h-3 bg-white/10 rounded-full overflow-hidden'>
               <div className='h-full bg-blue-500 transition-all duration-500' style={{ width: `${progress}%` }} />
             </div>
           </div>
 
           {/* Hearts */}
-          <div className='flex items-center gap-1'>
+          <div className='flex items-center gap-0.5 md:gap-1 shrink-0'>
             {[...Array(3)].map((_, i) => (
               <Heart
                 key={i}
-                size={24}
+                size={18}
                 className={clsx(
-                  'transition-all duration-300',
+                  'md:w-6 md:h-6 transition-all duration-300',
                   i < session.hearts ? 'fill-red-500 text-red-500' : 'text-gray-600'
                 )}
               />
             ))}
           </div>
-        </div>
 
-        {/* Stats Bar */}
-        <div className='flex items-center justify-center gap-6 mt-3 max-w-2xl mx-auto'>
-          <div className='flex items-center gap-1 text-sm'>
-            <Star size={16} className='text-yellow-400 fill-yellow-400' />
-            <span className='font-bold'>{session.xp} XP</span>
-          </div>
-          {session.streak > 0 && (
-            <div className='flex items-center gap-1 text-sm animate-pulse'>
-              <Flame size={16} className='text-orange-400' />
-              <span className='font-bold text-orange-400'>{session.streak} streak!</span>
+          {/* Stats inline on mobile */}
+          <div className='flex items-center gap-2 md:gap-4 ml-2 md:ml-4 shrink-0'>
+            <div className='flex items-center gap-0.5 text-xs md:text-sm'>
+              <Star size={14} className='md:w-4 md:h-4 text-yellow-400 fill-yellow-400' />
+              <span className='font-bold'>{session.xp}</span>
             </div>
-          )}
-          <div className='text-sm text-gray-400'>
-            {session.currentIndex + 1} / {session.exercises.length}
+            {session.streak > 0 && (
+              <div className='flex items-center gap-0.5 text-xs md:text-sm'>
+                <Flame size={14} className='md:w-4 md:h-4 text-orange-400' />
+                <span className='font-bold text-orange-400'>{session.streak}</span>
+              </div>
+            )}
+            <span className='text-xs text-gray-400'>
+              {session.currentIndex + 1}/{session.exercises.length}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Exercise Content */}
-      <div className='flex-1 overflow-auto p-6 max-w-2xl mx-auto w-full'>
+      <div className='flex-1 flex flex-col p-4 md:p-6 max-w-2xl mx-auto w-full overflow-hidden'>
         {currentExercise.type === 'word-order' && (
           <WordBank key={currentExercise.id} exercise={currentExercise} onComplete={handleExerciseComplete} />
         )}

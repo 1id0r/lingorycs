@@ -58,63 +58,69 @@ export const FillBlank: React.FC<FillBlankProps> = ({ exercise, onComplete }) =>
   }
 
   return (
-    <div className='flex flex-col h-full'>
-      {/* Instructions */}
-      <div className='text-center mb-4 md:mb-6 shrink-0'>
-        <p className='text-gray-400 text-xs md:text-sm mb-1'>Complete the sentence:</p>
-        <p className='text-teal-300 text-base md:text-lg font-medium'>{exercise.text_en}</p>
+    <div className='flex flex-col h-full justify-between'>
+      {/* Top: Instructions + Sentence */}
+      <div className='shrink-0'>
+        {/* Instructions */}
+        <div className='text-center mb-2 md:mb-4'>
+          <p className='text-gray-400 text-xs md:text-sm mb-1'>Complete the sentence:</p>
+          <p className='text-teal-300 text-sm md:text-lg font-medium'>{exercise.text_en}</p>
+        </div>
+
+        {/* Sentence with Blank */}
+        <div
+          className={clsx(
+            'flex items-center justify-center p-4 md:p-6 rounded-2xl transition-all min-h-[80px] md:min-h-[120px]',
+            'bg-gradient-to-br from-white/5 to-white/10 border border-white/10',
+            feedback === 'correct' && 'from-green-500/10 to-green-500/20 border-green-500/30',
+            feedback === 'incorrect' && 'from-red-500/10 to-red-500/20 border-red-500/30 animate-shake'
+          )}
+        >
+          {renderSentence()}
+        </div>
       </div>
 
-      {/* Sentence with Blank */}
-      <div
-        className={clsx(
-          'flex-1 flex items-center justify-center p-6 rounded-2xl mb-8 transition-all',
-          'bg-gradient-to-br from-white/5 to-white/10 border border-white/10',
-          feedback === 'correct' && 'from-green-500/10 to-green-500/20 border-green-500/30',
-          feedback === 'incorrect' && 'from-red-500/10 to-red-500/20 border-red-500/30 animate-shake'
-        )}
-      >
-        {renderSentence()}
-      </div>
+      {/* Bottom: Options + Check Button */}
+      <div className='shrink-0'>
+        {/* Options */}
+        <div className='grid grid-cols-2 gap-2 md:gap-3 mb-3 md:mb-4'>
+          {exercise.options.map((option, index) => (
+            <Button
+              key={index}
+              onClick={() => handleOptionSelect(option)}
+              disabled={isChecking}
+              neon={selectedOption === option}
+              variant={selectedOption === option ? 'solid' : 'ghost'}
+              className={clsx(
+                'py-3 md:py-4 px-4 md:px-6 h-auto font-bold text-base md:text-lg transition-all duration-200',
+                'border-2 touch-manipulation',
+                selectedOption === option && feedback === 'correct' && 'bg-green-500 border-green-400',
+                selectedOption === option && feedback === 'incorrect' && 'bg-red-500 border-red-400',
+                isChecking && 'pointer-events-none',
+                // Highlight correct answer after incorrect guess
+                feedback === 'incorrect' &&
+                  option.toLowerCase() === exercise.blankWord.toLowerCase() &&
+                  'bg-green-500/50 border-green-400 text-green-100'
+              )}
+            >
+              {option}
+            </Button>
+          ))}
+        </div>
 
-      {/* Options */}
-      <div className='grid grid-cols-2 gap-2 md:gap-3 mb-4 md:mb-8'>
-        {exercise.options.map((option, index) => (
-          <Button
-            key={index}
-            onClick={() => handleOptionSelect(option)}
-            disabled={isChecking}
-            neon={selectedOption === option}
-            variant={selectedOption === option ? 'solid' : 'ghost'}
-            className={clsx(
-              'py-3 md:py-4 px-4 md:px-6 h-auto font-bold text-base md:text-lg transition-all duration-200',
-              'border-2 touch-manipulation',
-              selectedOption === option && feedback === 'correct' && 'bg-green-500 border-green-400',
-              selectedOption === option && feedback === 'incorrect' && 'bg-red-500 border-red-400',
-              isChecking && 'pointer-events-none',
-              // Highlight correct answer after incorrect guess
-              feedback === 'incorrect' &&
-                option.toLowerCase() === exercise.blankWord.toLowerCase() &&
-                'bg-green-500/50 border-green-400 text-green-100'
-            )}
-          >
-            {option}
-          </Button>
-        ))}
+        {/* Check Button */}
+        <Button
+          onClick={checkAnswer}
+          disabled={!selectedOption || isChecking}
+          variant='solid'
+          className={clsx(
+            'w-full py-3 md:py-4 h-auto font-bold text-base md:text-lg transition-all',
+            (!selectedOption || isChecking) && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          {isChecking ? (feedback === 'correct' ? '✓ Perfect!' : '✗ Not quite') : 'Check'}
+        </Button>
       </div>
-
-      {/* Check Button */}
-      <Button
-        onClick={checkAnswer}
-        disabled={!selectedOption || isChecking}
-        variant='solid'
-        className={clsx(
-          'w-full py-3 md:py-4 h-auto font-bold text-base md:text-lg transition-all shrink-0',
-          (!selectedOption || isChecking) && 'opacity-50 cursor-not-allowed'
-        )}
-      >
-        {isChecking ? (feedback === 'correct' ? '✓ Perfect!' : '✗ Not quite') : 'Check'}
-      </Button>
     </div>
   )
 }

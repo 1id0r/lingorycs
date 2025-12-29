@@ -55,57 +55,60 @@ export const WordBank: React.FC<WordBankProps> = ({ exercise, onComplete }) => {
   const canCheck = placedWords.length === exercise.correctOrder.length
 
   return (
-    <div className='flex flex-col h-full'>
-      {/* Instructions */}
-      <div className='text-center mb-4 md:mb-6 shrink-0'>
-        <p className='text-gray-400 text-xs md:text-sm mb-1'>Arrange the words to form the sentence:</p>
-        <p className='text-teal-300 text-base md:text-lg font-medium'>{exercise.text_en}</p>
-      </div>
+    <div className='flex flex-col h-full justify-between'>
+      {/* Top Section: Instructions + Drop Zone */}
+      <div className='shrink-0'>
+        {/* Instructions */}
+        <div className='text-center mb-2 md:mb-4'>
+          <p className='text-gray-400 text-xs md:text-sm mb-1'>Arrange the words to form the sentence:</p>
+          <p className='text-teal-300 text-sm md:text-lg font-medium'>{exercise.text_en}</p>
+        </div>
 
-      {/* Drop Zone - Sentence Building Area */}
-      <div
-        ref={dropZoneRef}
-        className={clsx(
-          'min-h-[80px] md:min-h-[120px] p-2 md:p-4 rounded-2xl border-2 border-dashed transition-all duration-300 mb-4 md:mb-8 shrink-0',
-          placedWords.length === 0 ? 'border-white/20 bg-white/5' : 'border-purple-500/50 bg-purple-500/10',
-          feedback === 'correct' && 'border-green-500 bg-green-500/20',
-          feedback === 'incorrect' && 'border-red-500 bg-red-500/20 animate-shake'
-        )}
-      >
-        {placedWords.length === 0 ? (
-          <p className='text-gray-500 text-center py-4'>Tap words below to build the sentence</p>
-        ) : (
-          <div className='flex flex-wrap gap-2 justify-center'>
-            {placedWords.map((word, index) => (
-              <Button
-                key={`placed-${index}`}
-                onClick={() => handleWordTap(word, index, true)}
-                disabled={isChecking}
-                neon={false}
-                variant='solid'
-                className={clsx(
-                  'px-3 py-1.5 md:px-4 md:py-2 h-auto text-base md:text-lg transition-all duration-200',
-                  'shadow-lg shadow-blue-500/20',
-                  isChecking && 'pointer-events-none'
-                )}
-              >
-                {word}
-              </Button>
-            ))}
-          </div>
-        )}
+        {/* Drop Zone - Sentence Building Area */}
+        <div
+          ref={dropZoneRef}
+          className={clsx(
+            'min-h-[60px] md:min-h-[100px] p-2 md:p-4 rounded-2xl border-2 border-dashed transition-all duration-300',
+            placedWords.length === 0 ? 'border-white/20 bg-white/5' : 'border-purple-500/50 bg-purple-500/10',
+            feedback === 'correct' && 'border-green-500 bg-green-500/20',
+            feedback === 'incorrect' && 'border-red-500 bg-red-500/20 animate-shake'
+          )}
+        >
+          {placedWords.length === 0 ? (
+            <p className='text-gray-500 text-center py-4'>Tap words below to build the sentence</p>
+          ) : (
+            <div className='flex flex-wrap gap-2 justify-center'>
+              {placedWords.map((word, index) => (
+                <Button
+                  key={`placed-${index}`}
+                  onClick={() => handleWordTap(word, index, true)}
+                  disabled={isChecking}
+                  neon={false}
+                  variant='solid'
+                  className={clsx(
+                    'px-3 py-1.5 md:px-4 md:py-2 h-auto text-base md:text-lg transition-all duration-200',
+                    'shadow-lg shadow-blue-500/20',
+                    isChecking && 'pointer-events-none'
+                  )}
+                >
+                  {word}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Word Bank - Available Words */}
-      <div className='flex-1 flex flex-col justify-center'>
-        <div className='flex flex-wrap gap-3 justify-center'>
+      <div className='py-4 md:py-6'>
+        <div className='flex flex-wrap gap-2 md:gap-3 justify-center'>
           {availableWords.map((word, index) => (
             <button
               key={`available-${index}`}
               onClick={() => handleWordTap(word, index, false)}
               disabled={isChecking}
               className={clsx(
-                'px-5 py-3 rounded-xl font-medium text-lg transition-all duration-200',
+                'px-4 py-2.5 md:px-5 md:py-3 rounded-xl font-medium text-base md:text-lg transition-all duration-200',
                 'bg-white/10 text-white border border-white/20',
                 'active:scale-95 active:bg-white/20',
                 'hover:bg-white/15 hover:border-white/30',
@@ -120,7 +123,7 @@ export const WordBank: React.FC<WordBankProps> = ({ exercise, onComplete }) => {
       </div>
 
       {/* Action Buttons */}
-      <div className='flex gap-3 mt-4 md:mt-8 shrink-0'>
+      <div className='flex gap-3 shrink-0 pb-2'>
         <Button
           onClick={handleReset}
           disabled={isChecking || placedWords.length === 0}

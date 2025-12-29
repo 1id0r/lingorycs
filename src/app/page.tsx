@@ -100,6 +100,16 @@ export default function Home() {
   const [searchFocused, setSearchFocused] = useState(false)
 
   if (currentSong) {
+    // Practice mode takes full screen
+    if (practiceMode) {
+      return (
+        <div className='min-h-screen bg-black text-white'>
+          <PracticeMode key={currentSong.id} song={currentSong} onExit={() => setPracticeMode(false)} />
+          <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        </div>
+      )
+    }
+
     return (
       <div className='min-h-screen bg-black text-white'>
         {/* Compact Header */}
@@ -112,7 +122,7 @@ export default function Home() {
                 searchFocused ? 'hidden md:flex' : 'flex'
               }`}
             >
-              <img src='/logo.svg' alt='Espalingo' className='h-10 w-10 rounded-xl' />
+              <img src='/logo.png' alt='Espalingo' className='h-10 w-10 rounded-xl' />
             </button>
 
             {/* Search Bar - full width on mobile when focused */}
@@ -143,18 +153,14 @@ export default function Home() {
           </div>
         )}
 
-        {/* Player or Practice */}
-        {practiceMode ? (
-          <PracticeMode key={currentSong.id} song={currentSong} onExit={() => setPracticeMode(false)} />
-        ) : (
-          <div className='animate-in fade-in slide-in-from-bottom-10 duration-700'>
-            <Player
-              song={currentSong}
-              onStartPractice={() => setPracticeMode(true)}
-              onLoginRequired={() => setShowAuthModal(true)}
-            />
-          </div>
-        )}
+        {/* Player */}
+        <div className='animate-in fade-in slide-in-from-bottom-10 duration-700'>
+          <Player
+            song={currentSong}
+            onStartPractice={() => setPracticeMode(true)}
+            onLoginRequired={() => setShowAuthModal(true)}
+          />
+        </div>
 
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
@@ -187,7 +193,7 @@ export default function Home() {
         <div className='container mx-auto flex justify-between items-center'>
           {/* Logo */}
           <div className='flex items-center gap-3'>
-            <img src='/logo.svg' alt='Espalingo' className='h-12 w-12 rounded-xl' />
+            <img src='/logo.png' alt='Espalingo' className='h-12 w-12 rounded-xl' />
             <span className='text-2xl font-bold text-white'>Espalingo</span>
           </div>
 
