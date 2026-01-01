@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/context/AuthContext'
 import { BottomNav } from '@/components/BottomNav'
 import { DesktopNav } from '@/components/DesktopNav'
+import { Analytics } from '@vercel/analytics/react'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,6 +39,7 @@ export default function RootLayout({
           {children}
           <BottomNav />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   )
